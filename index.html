@@ -7,70 +7,62 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
-    <h1>everythingpdf</h1>
-    <p>Append images/PDFs into one PDF. Export & share.</p>
-  </header>
-
-  <main class="card">
-
-    <!-- Plan / Upgrade UI -->
-    <section class="card inner" id="planCard">
-      <h2>Plan</h2>
-      <div class="row">
-        <span class="pill" id="planPill">Free</span>
-        <span class="muted">Free: max 2 uploads per build</span>
+  <main class="shell">
+    <section class="topbar">
+      <div class="brand">
+        <div class="logo">e</div>
+        <div>
+          <h1>everythingpdf</h1>
+          <p>Append images & PDFs into one PDF. Export and share a public link.</p>
+        </div>
       </div>
-
-      <div class="row" style="margin-top:10px;">
-        <button id="upgradeBtn" class="btn primary">Upgrade to Pro</button>
-        <button id="downgradeBtn" class="btn" disabled>Switch to Free</button>
-      </div>
-
-      <p class="muted" id="planNote" style="margin-top:10px;"></p>
+      <div class="badge">Free • Pro upgrade available</div>
     </section>
 
-    <!-- Actions -->
-    <section class="row">
-      <label class="btn">
-        Load existing PDF
-        <input id="pdfInput" type="file" accept="application/pdf" hidden />
-      </label>
+    <section class="grid">
+      <!-- Left panel -->
+      <div class="panel">
+        <div class="panelHeader">
+          <h2>Plan</h2>
+          <span class="pill" id="planPill">Free</span>
+        </div>
+        <p class="muted" id="planNote"></p>
 
-      <label class="btn">
-        Add pages (images or PDFs)
-        <input id="addInput" type="file" accept="application/pdf,image/*" multiple hidden />
-      </label>
+        <div class="row">
+          <button id="upgradeBtn" class="btn primary">Upgrade to Pro</button>
+          <button id="downgradeBtn" class="btn ghost" disabled>Switch to Free</button>
+        </div>
 
-      <button id="newBtn" class="btn secondary">Start new PDF</button>
-    </section>
+        <hr class="sep" />
 
-    <!-- Queue -->
-    <section class="card inner">
-      <h2>Queue</h2>
-      <p class="muted">Files you add will be appended in this order.</p>
-      <ul id="queue"></ul>
+        <div class="panelHeader">
+          <h2>Build</h2>
+          <span class="hint">PDF + Images supported</span>
+        </div>
 
-      <div class="row">
-        <button id="buildBtn" class="btn primary">Build PDF</button>
-        <button id="downloadBtn" class="btn" disabled>Download</button>
-        <button id="shareBtn" class="btn" disabled>Share link</button>
-      </div>
+        <div class="row">
+          <label class="btn">
+            Load base PDF
+            <input id="pdfInput" type="file" accept="application/pdf" hidden />
+          </label>
 
-      <p id="status" class="muted"></p>
-      <p id="shareOut"></p>
-    </section>
-  </main>
+          <button id="newBtn" class="btn ghost">Start new PDF</button>
+        </div>
 
-  <!-- pdf-lib -->
-  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+        <div id="dropZone" class="dropzone" tabindex="0" role="button" aria-label="Drop files here">
+          <div class="dzLeft">
+            <div class="dzIcon">⇪</div>
+            <div class="dzText">
+              <div class="dzTitle">Drag & drop files here</div>
+              <div class="dzSub">PDFs + Images. (DOCX/PPTX: export to PDF first.)</div>
+            </div>
+          </div>
 
-  <!-- OPTIONAL: Firebase config -->
-  <script>
-    // If you do Step 12 (Firebase), paste config here:
-    // window.__EVERYTHINGPDF_FIREBASE_CONFIG__ = { ... };
-  </script>
+          <label class="btn small">
+            Choose files
+            <input id="addInput" type="file" accept="application/pdf,image/*" multiple hidden />
+          </label>
+        </div>
 
-  <script type="module" src="app.js"></script>
-</body>
-</html>
+        <div class="row">
+          <button id="buildBtn" class="btn pr
