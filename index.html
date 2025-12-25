@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>everythingpdf</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>everythingpdf</h1>
+    <p>Append images/PDFs into one PDF. Export & share.</p>
+  </header>
+
+  <main class="card">
+
+    <!-- Plan / Upgrade UI -->
+    <section class="card inner" id="planCard">
+      <h2>Plan</h2>
+      <div class="row">
+        <span class="pill" id="planPill">Free</span>
+        <span class="muted">Free: max 2 uploads per build</span>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <button id="upgradeBtn" class="btn primary">Upgrade to Pro</button>
+        <button id="downgradeBtn" class="btn" disabled>Switch to Free</button>
+      </div>
+
+      <p class="muted" id="planNote" style="margin-top:10px;"></p>
+    </section>
+
+    <!-- Actions -->
+    <section class="row">
+      <label class="btn">
+        Load existing PDF
+        <input id="pdfInput" type="file" accept="application/pdf" hidden />
+      </label>
+
+      <label class="btn">
+        Add pages (images or PDFs)
+        <input id="addInput" type="file" accept="application/pdf,image/*" multiple hidden />
+      </label>
+
+      <button id="newBtn" class="btn secondary">Start new PDF</button>
+    </section>
+
+    <!-- Queue -->
+    <section class="card inner">
+      <h2>Queue</h2>
+      <p class="muted">Files you add will be appended in this order.</p>
+      <ul id="queue"></ul>
+
+      <div class="row">
+        <button id="buildBtn" class="btn primary">Build PDF</button>
+        <button id="downloadBtn" class="btn" disabled>Download</button>
+        <button id="shareBtn" class="btn" disabled>Share link</button>
+      </div>
+
+      <p id="status" class="muted"></p>
+      <p id="shareOut"></p>
+    </section>
+  </main>
+
+  <!-- pdf-lib -->
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+  <!-- OPTIONAL: Firebase config -->
+  <script>
+    // If you do Step 12 (Firebase), paste config here:
+    // window.__EVERYTHINGPDF_FIREBASE_CONFIG__ = { ... };
+  </script>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
