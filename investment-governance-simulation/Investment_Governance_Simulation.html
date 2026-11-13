@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investment Governance Simulation</title>
+<style>
+  :root {
+    --bg: #060a1c;
+    --bg-2: #0b1233;
+    --panel: rgba(36, 48, 120, 0.28);
+    --panel-strong: rgba(52, 70, 170, 0.38);
+    --line: rgba(130, 150, 255, 0.18);
+    --line-strong: rgba(130, 150, 255, 0.38);
+    --text: #eef1ff;
+    --muted: #9ba7d8;
+    --faint: #6a76a8;
+    --accent: #4d6bff;
+    --accent-2: #8a9cff;
+    --good: #3ddc97;
+    --warn: #ffb547;
+    --bad: #ff6b7a;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh;
+    color: var(--text);
+    background:
+      radial-gradient(1200px 600px at 75% -10%, rgba(77, 107, 255, 0.28), transparent 60%),
+      radial-gradient(900px 500px at 0% 100%, rgba(77, 107, 255, 0.14), transparent 60%),
+      linear-gradient(180deg, var(--bg-2), var(--bg));
+    background-color: var(--bg);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 0 24px 32px; }
+
+  /* Header */
+  header.top {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 18px 0 14px; border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .brand b { font-size: 20px; letter-spacing: -0.2px; }
+  .brand span { color: var(--muted); font-size: 18px; }
+  .brand em { font-style: normal; font-size: 12px; color: var(--accent-2); border: 1px solid var(--line-strong); padding: 2px 10px; border-radius: 999px; }
+  .top-right { display: flex; align-items: center; gap: 10px; }
+  .chip { font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--panel); white-space: nowrap; }
+  .chip.month { color: var(--text); font-weight: 600; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  .btn {
+    border: 1px solid var(--line-strong); background: var(--panel); border-radius: 999px;
+    padding: 8px 18px; transition: background .2s, border-color .2s, opacity .2s;
+  }
+  .btn:hover:not(:disabled) { background: var(--panel-strong); border-color: var(--accent-2); }
+  .btn:disabled { opacity: .35; cursor: not-allowed; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); font-weight: 600; }
+  .btn.primary:hover:not(:disabled) { background: #6480ff; }
+  .btn.small { padding: 5px 12px; font-size: 13px; }
+
+  /* Money meter */
+  .meter { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 16px 0 12px; }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; transition: border-color .4s, background .4s; }
+  .tile .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+  .tile .v { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
+  .tile.flash { border-color: var(--accent-2); background: var(--panel-strong); }
+  .tile.warn { border-color: var(--bad); background: rgba(255, 107, 122, 0.14); }
+  .tile.warn .v { color: var(--bad); }
+
+  /* Swimlane */
+  .lane-card { background: rgba(10, 16, 50, 0.55); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 8px 2px; }
+  .lane-card svg { width: 100%; height: auto; display: block; }
+  .legend { display: flex; gap: 18px; justify-content: flex-end; font-size: 12px; color: var(--muted); padding: 0 10px 8px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+
+  /* Main */
+  .main { display: grid; grid-template-columns: minmax(0, 2.1fr) minmax(280px, 1fr); gap: 16px; margin-top: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 24px; }
+  .stage-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+  .letter { width: 40px; height: 40px; border-radius: 10px; background: var(--accent); display: grid; place-items: center; font-weight: 800; font-size: 20px; }
+  .eyebrow { color: var(--muted); font-size: 13px; }
+  .who { font-size: 13px; color: var(--accent-2); }
+  h1 { font-size: 30px; margin: 6px 0 6px; letter-spacing: -0.6px; }
+  h2 { font-size: 18px; margin: 20px 0 10px; }
+  h3 { font-size: 15px; margin: 0 0 6px; }
+  p { margin: 6px 0; }
+  .lead { color: #cdd4ff; font-size: 16px; }
+  .muted { color: var(--muted); }
+  .star { color: #ffd166; }
+  .badge-sharan { font-size: 12px; font-weight: 700; color: #1a1300; background: #ffd166; padding: 3px 10px; border-radius: 999px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .ok { color: var(--good); font-weight: 600; }
+  .pending { color: var(--warn); font-weight: 600; }
+  .bad { color: var(--bad); font-weight: 600; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .stat { background: rgba(10, 16, 50, 0.45); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  .stat .v { font-size: 22px; font-weight: 700; }
+  .stat .k { font-size: 13px; color: var(--muted); }
+  .stamp { display: inline-block; margin-top: 14px; padding: 6px 14px; border: 2px solid var(--good); color: var(--good); border-radius: 8px; font-weight: 700; letter-spacing: .6px; transform: rotate(-2deg); }
+
+  .checklist { list-style: none; padding: 0; margin: 8px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+  .checklist li::before { content: "✓"; color: var(--good); font-weight: 700; margin-right: 8px; }
+
+  /* Five questions */
+  .fq { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 14px; }
+  .fq-list { display: flex; flex-direction: column; gap: 6px; }
+  .fq-item { display: flex; gap: 10px; align-items: center; text-align: left; border: 1px solid transparent; background: transparent; border-radius: 10px; padding: 9px 10px; }
+  .fq-item .n { width: 26px; height: 26px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 13px; background: var(--panel-strong); }
+  .fq-item.active { background: var(--accent); }
+  .fq-item.active .n { background: rgba(255,255,255,.25); }
+  .fq-item.seen:not(.active) .n { background: var(--good); color: #062a1a; }
+  .fq-item:hover:not(.active) { border-color: var(--line-strong); }
+  .fq-detail { background: linear-gradient(160deg, #3a56f0, #2a3fb8); border-radius: 14px; padding: 16px 18px; }
+  .fq-detail .sub { font-size: 12px; color: #d8deff; text-transform: uppercase; letter-spacing: .5px; margin-top: 12px; }
+  .fq-detail p { color: #f2f4ff; }
+  .fq-detail table td, .fq-detail table th { border-color: rgba(255,255,255,.2); padding: 6px 8px; }
+  .fq-detail table th { color: #d8deff; }
+
+  /* Checks */
+  .checks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .check { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: rgba(10, 16, 50, 0.45); }
+  .check .lbl { font-size: 12px; color: var(--muted); }
+  .check .res { font-size: 15px; font-weight: 700; margin-top: 4px; }
+  .check.pass { border-color: rgba(61, 220, 151, 0.45); }
+  .hurdle { margin: 10px 0 4px; }
+  .hurdle .row { display: grid; grid-template-columns: 130px 1fr 150px; align-items: center; gap: 12px; margin: 8px 0; font-size: 14px; }
+  .bar { position: relative; height: 12px; border-radius: 999px; background: rgba(255,255,255,.08); }
+  .bar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: var(--good); }
+  .bar .mark { position: absolute; top: -5px; bottom: -5px; width: 2px; background: var(--warn); }
+
+  /* Decisions */
+  .decide { margin-top: 18px; padding: 16px 18px; border-radius: 14px; border: 1px dashed #ffd166; background: rgba(255, 209, 102, 0.06); }
+  .options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .opt { border: 1px solid var(--line-strong); background: var(--panel-strong); border-radius: 999px; padding: 10px 20px; font-weight: 600; }
+  .opt:hover:not(:disabled) { border-color: #ffd166; }
+  .opt.chosen { background: var(--accent); border-color: var(--accent); }
+  .opt:disabled:not(.chosen) { opacity: .35; cursor: not-allowed; }
+  .outcome { margin-top: 12px; padding: 12px 14px; border-radius: 10px; font-size: 14px; }
+  .outcome.good { background: rgba(61, 220, 151, 0.12); border: 1px solid rgba(61, 220, 151, 0.45); }
+  .outcome.warn { background: rgba(255, 107, 122, 0.12); border: 1px solid rgba(255, 107, 122, 0.5); }
+  .rf-decision { margin-top: 16px; padding: 14px 16px; border-radius: 12px; background: rgba(61, 220, 151, 0.1); border: 1px solid rgba(61, 220, 151, 0.4); }
+  .rf-decision b { color: var(--good); }
+
+  /* Brief */
+  .brief { border: 1px solid var(--line-strong); border-radius: 12px; overflow: hidden; }
+  .brief .row { display: grid; grid-template-columns: 190px 1fr; border-bottom: 1px solid var(--line); }
+  .brief .row:last-child { border-bottom: 0; }
+  .brief .row > div { padding: 9px 12px; font-size: 14px; }
+  .brief .row > div:first-child { color: var(--muted); background: rgba(10, 16, 50, 0.4); }
+
+  /* Side */
+  .side { display: flex; flex-direction: column; gap: 16px; }
+  .side .card { padding: 16px 18px; }
+  .side h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); margin-bottom: 10px; }
+  .cond { display: grid; grid-template-columns: 32px 1fr auto; gap: 8px; align-items: start; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .cond:last-child { border-bottom: 0; }
+  .cond .id { font-weight: 700; color: var(--accent-2); }
+  .cond .meta { color: var(--muted); font-size: 12px; }
+  .pill { font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .pill.notset { color: var(--faint); border: 1px solid var(--line); }
+  .pill.pending { color: var(--warn); border: 1px solid rgba(255, 181, 71, .5); }
+  .pill.ok { color: #062a1a; background: var(--good); }
+  .log { list-style: none; padding: 0; margin: 0; font-size: 13.5px; }
+  .log li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .log li:last-child { border-bottom: 0; }
+  .log .when { color: var(--muted); font-size: 12px; }
+  .log .who.sc { color: #ffd166; }
+  .empty { color: var(--faint); font-size: 13px; }
+
+  /* Footer nav */
+  .nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; }
+  .dots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .dot { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line-strong); background: transparent; font-size: 12px; color: var(--muted); }
+  .dot.done { background: var(--panel-strong); color: var(--text); }
+  .dot.current { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  .dot:disabled { cursor: not-allowed; opacity: .5; }
+  .hint { text-align: center; color: var(--faint); font-size: 12px; margin-top: 10px; }
+
+  .fade { animation: fade .35s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .fade { animation: none; } }
+
+  @media (max-width: 980px) {
+    .main { grid-template-columns: 1fr; }
+    .meter { grid-template-columns: repeat(3, 1fr); }
+    .fq, .grid2, .checks { grid-template-columns: 1fr; }
+    .grid4 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .wrap { padding: 0 16px 24px; }
+    .meter { grid-template-columns: 1fr 1fr; }
+    .checklist { grid-template-columns: 1fr; }
+    .brief .row { grid-template-columns: 1fr; }
+    .hurdle .row { grid-template-columns: 1fr; gap: 4px; }
+    h1 { font-size: 24px; }
+    .top-right .chip:not(.month) { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <b>indegene</b><span>Investment Governance</span><em>Simulation</em>
+    </div>
+    <div class="top-right">
+      <span class="chip">BU A · ClaimCheck</span>
+      <span class="chip month" id="month">Month 0</span>
+      <button class="btn small" id="restart" title="Restart the simulation">Restart</button>
+    </div>
+  </header>
+
+  <section class="meter" aria-label="Money meter">
+    <div class="tile" id="t-asked"><div class="k">Asked</div><div class="v">$1.5M</div></div>
+    <div class="tile" id="t-approved"><div class="k">Approved</div><div class="v">—</div></div>
+    <div class="tile" id="t-released"><div class="k">Released</div><div class="v">—</div></div>
+    <div class="tile" id="t-spent"><div class="k">Spent</div><div class="v">—</div></div>
+    <div class="tile" id="t-held"><div class="k">Held back</div><div class="v">—</div></div>
+  </section>
+
+  <section class="lane-card" aria-label="Who acts at each step">
+    <svg id="lane" viewBox="0 0 1000 236" role="img" aria-label="Swimlane of the nine steps"></svg>
+    <div class="legend">
+      <span><i style="background:#ffd166"></i>Sharan decides (Steering Committee)</span>
+      <span><i style="background:var(--accent)"></i>Done</span>
+      <span><i style="border:2px solid var(--accent-2)"></i>Still to come</span>
+    </div>
+  </section>
+
+  <section class="main">
+    <article class="card" id="stage"></article>
+    <aside class="side">
+      <div class="card">
+        <h3>Conditions</h3>
+        <div id="conds"></div>
+      </div>
+      <div class="card">
+        <h3>Decision log</h3>
+        <ul class="log" id="log"></ul>
+      </div>
+    </aside>
+  </section>
+
+  <nav class="nav">
+    <button class="btn" id="back">← Back</button>
+    <div class="dots" id="dots"></div>
+    <button class="btn primary" id="next">Next →</button>
+  </nav>
+  <div class="hint">Use ← → keys to move. All figures are illustrative.</div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Data ----------
+  var STEPS = [
+    null, // 0 = intro
+    { n: 1, letter: "R", stage: "Record baseline", lane: 2, node: "Baseline",          who: "S&O, with Finance", month: "Month 0" },
+    { n: 2, letter: "E", stage: "Establish investment case", lane: 2, node: "Case submitted", who: "BU A, with S&O", month: "Month 0" },
+    { n: 3, letter: "W", stage: "Weigh value & risks", lane: 1, node: "Recommends",    who: "Review Forum", month: "Month 0" },
+    { n: 4, letter: "W", stage: "Weigh value & risks", lane: 0, node: "Decides",       who: "Steering Committee", month: "Month 0", sharan: true },
+    { n: 5, letter: "A", stage: "Assess updates", lane: 2, node: "Monthly actuals",    who: "Finance reports · BU A explains · S&O reviews", month: "Months 1–3" },
+    { n: 6, letter: "R", stage: "Review performance", lane: 1, node: "Checkpoint 1",   who: "Review Forum", month: "Month 3" },
+    { n: 7, letter: "R", stage: "Review performance", lane: 1, node: "Checkpoint 2",   who: "Review Forum", month: "Month 8" },
+    { n: 8, letter: "R", stage: "Review performance", lane: 0, node: "Decides",        who: "Steering Committee", month: "Month 12", sharan: true },
+    { n: 9, letter: "D", stage: "Document outcomes", lane: 2, node: "Quarterly note",  who: "S&O, to the Steering Committee", month: "Quarter end" }
+  ];
+  var LAST = 9;
+
+  var QUESTIONS = [
+    {
+      q: "Is the client problem real?",
+      show: "Design-partner clients (not Indegene teams) who describe the problem, a buyer who owns the budget, and what they spend today.",
+      ans: "<p>Two named clients describe the problem. The buyer is each client’s <b>head of MLR operations</b>, who owns the budget and spends about <b>$1.1M a year</b> on review cycles.</p><p>One design partner has signed a <b>letter of intent</b>.</p>"
+    },
+    {
+      q: "What can be reused?",
+      show: "Share of the build that is reusable, a ceiling on custom work per client [~20%], and a core already working for [2] use cases.",
+      ans: "<p><b>60%</b> of the build reuses the Content SuperApp core, which already runs <b>2 use cases</b>.</p><p>Custom work per client: about <b>20%</b>, at the ceiling.</p>"
+    },
+    {
+      q: "Build, partner or buy?",
+      show: "A side-by-side: cost, time to first client, what we own (code, data rights, IP), and why ours is different.",
+      ans: "<table><tr><th></th><th>Build</th><th>Vendor licence</th></tr>" +
+           "<tr><td>Cost</td><td>$1.5M one-time</td><td>$0.4M every year</td></tr>" +
+           "<tr><td>First paying client</td><td>Month 8</td><td>Month 4</td></tr>" +
+           "<tr><td>What we own</td><td>Code, data rights, IP</td><td>Nothing</td></tr>" +
+           "<tr><td>Uses our MLR reference library</td><td>Yes</td><td>No</td></tr></table>" +
+           "<p><b>Build</b>: slower to start, but we own it and it uses data no one else has.</p>"
+    },
+    {
+      q: "Is the plan realistic?",
+      show: "Prototype, paid pilot and scale milestones with full cost: model usage, security review, client data access, support.",
+      ans: "<p>Prototype by <b>month 3</b> · paid pilots by <b>month 8</b> · scale by <b>month 12</b>.</p>" +
+           "<table><tr><th>Spend head</th><th class='num'>$M</th></tr>" +
+           "<tr><td>Engineering team (6 people, 12 months)</td><td class='num'>0.72</td></tr>" +
+           "<tr><td>GenAI model usage</td><td class='num'>0.18</td></tr>" +
+           "<tr><td>Reference library &amp; data licences</td><td class='num'>0.15</td></tr>" +
+           "<tr><td>Security &amp; privacy review</td><td class='num'>0.10</td></tr>" +
+           "<tr><td>Client onboarding &amp; support</td><td class='num'>0.20</td></tr>" +
+           "<tr><td>Contingency</td><td class='num'>0.15</td></tr>" +
+           "<tr><th>Total</th><th class='num'>1.50</th></tr></table>"
+    },
+    {
+      q: "Will clients pay?",
+      show: "Price model, pilot terms, a pilot-to-paid plan, cost to serve per client, and revenue and margin at [3] clients.",
+      ans: "<p>3-month paid pilot at <b>$60k</b>, credited against a <b>$300k a year</b> licence if the client converts.</p>" +
+           "<p>Cost to serve: <b>$90k</b> per client per year.</p>" +
+           "<p>At 3 clients: <b>$0.9M a year</b> revenue, about <b>70% margin</b>.</p>"
+    }
+  ];
+
+  // ---------- State ----------
+  var state;
+  function fresh() {
+    return { step: 0, max: 0, d4: null, d8: null, q: 0, seen: { 0: true }, preview: null };
+  }
+  state = fresh();
+
+  // ---------- Derived ----------
+  function money() {
+    var s = state.step, approved = null, released = null, spent = null;
+    if (s > 4 || (s === 4 && state.d4)) { approved = 1.5; released = 0.4; spent = 0; }
+    if (s >= 5) spent = 0.40;
+    if (s >= 6) released = 1.0;
+    if (s >= 7) spent = 0.78;
+    if (s >= 8) spent = 1.02;
+    if (s > 8 || (s === 8 && state.d8)) released = 1.5;
+    var held = approved === null ? null : +(approved - released).toFixed(2);
+    var m = { approved: approved, released: released, spent: spent, held: held, warn: {} };
+    if (state.preview) {
+      for (var k in state.preview) m[k] = state.preview[k];
+    }
+    return m;
+  }
+
+  function conditions() {
+    var s = state.step;
+    var live = s > 4 || (s === 4 && state.d4);
+    var c = [
+      { id: "C1", t: "Design-partner agreement signed", meta: "BU A head · by month 3", st: "notset" },
+      { id: "C2", t: "Security review passed before any client data is used", meta: "InfoSec · before data access", st: "notset" },
+      { id: "C3", t: "Model usage at or below $15k a month", meta: "Product lead · monthly", st: "notset" }
+    ];
+    if (live) c.forEach(function (x) { x.st = "pending"; });
+    if (s >= 5) c[2].st = "ok";
+    if (s >= 6) { c[0].st = "ok"; c[1].st = "ok"; }
+    return c;
+  }
+
+  function logEntries() {
+    var s = state.step, L = [];
+    if (s >= 1) L.push(["Month 0", "S&O", "Baseline locked"]);
+    if (s >= 2) L.push(["Month 0", "BU A", "Case submitted: $1.5M"]);
+    if (s >= 3) L.push(["Month 0", "Review Forum", "Recommends Approve in parts"]);
+    if (s > 4 || (s === 4 && state.d4)) L.push(["Month 0", "Steering Committee", "Approved in parts · $0.4M released", true]);
+    if (s >= 6) L.push(["Month 3", "Review Forum", "Continue · $0.6M released"]);
+    if (s >= 7) L.push(["Month 8", "Review Forum", "Continue · no new money"]);
+    if (s > 8 || (s === 8 && state.d8)) L.push(["Month 12", "Steering Committee", "Scale up · $0.5M released", true]);
+    if (s >= 9) L.push(["Quarter end", "S&O", "Quarterly note sent"]);
+    return L.reverse();
+  }
+
+  function canAdvance() {
+    if (state.step === 4) return state.d4 === "parts";
+    if (state.step === 8) return state.d8 === "scale";
+    return state.step < LAST;
+  }
+
+  // ---------- Formatting ----------
+  function fmt(v) {
+    if (v === null || v === undefined) return "—";
+    var t = (Math.round(v * 100) / 100).toFixed(2).replace(/0$/, "").replace(/\.0$/, "");
+    if (t === "0.") t = "0";
+    return "$" + t + "M";
+  }
+
+  // ---------- Render: money meter ----------
+  var prevMoney = {};
+  function renderMoney() {
+    var m = money();
+    ["approved", "released", "spent", "held"].forEach(function (k) {
+      var tile = document.getElementById("t-" + k);
+      var el = tile.querySelector(".v");
+      var txt = fmt(m[k]);
+      if (prevMoney[k] !== undefined && prevMoney[k] !== txt) {
+        tile.classList.add("flash");
+        setTimeout(function () { tile.classList.remove("flash"); }, 900);
+      }
+      el.textContent = txt;
+      tile.classList.toggle("warn", !!m.warn[k]);
+      prevMoney[k] = txt;
+    });
+  }
+
+  // ---------- Render: swimlane ----------
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function el(name, attrs, text) {
+    var e = document.createElementNS(SVGNS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function renderLane() {
+    var svg = document.getElementById("lane");
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var left = 170, right = 990, top = 30, laneH = 68;
+    var lanes = [["Steering Committee", "Tier 2 · Sharan"], ["Review Forum", "Tier 1"], ["BU A · S&O · Finance", "Business"]];
+    var colW = (right - left) / 9;
+    function cx(n) { return left + (n - 0.5) * colW; }
+    function cy(l) { return top + l * laneH + laneH / 2 - 6; }
+
+    lanes.forEach(function (ln, i) {
+      var y = top + i * laneH;
+      svg.appendChild(el("rect", { x: 4, y: y, width: 992, height: laneH, fill: i % 2 ? "rgba(255,255,255,0.015)" : "rgba(255,255,255,0.035)" }));
+      svg.appendChild(el("line", { x1: 4, x2: 996, y1: y, y2: y, stroke: "rgba(130,150,255,0.15)" }));
+      svg.appendChild(el("text", { x: 16, y: y + laneH / 2 - 2, fill: "#eef1ff", "font-size": 14, "font-weight": 700 }, ln[0]));
+      svg.appendChild(el("text", { x: 16, y: y + laneH / 2 + 15, fill: "#9ba7d8", "font-size": 11.5 }, ln[1]));
+    });
+    for (var n = 1; n <= 9; n++) {
+      var st = STEPS[n];
+      var active = state.step === n;
+      svg.appendChild(el("text", { x: cx(n), y: 20, "text-anchor": "middle", fill: active ? "#ffffff" : "#8a9cff", "font-size": 14, "font-weight": 800 }, st.letter));
+    }
+    // connectors
+    for (n = 1; n < 9; n++) {
+      var a = STEPS[n], b = STEPS[n + 1];
+      var x1 = cx(n), y1 = cy(a.lane), x2 = cx(n + 1), y2 = cy(b.lane), mx = (x1 + x2) / 2;
+      var done = state.step > n;
+      svg.appendChild(el("path", {
+        d: "M" + x1 + " " + y1 + " H" + mx + " V" + y2 + " H" + x2,
+        fill: "none", stroke: done ? "#4d6bff" : "rgba(138,156,255,0.3)", "stroke-width": done ? 2.5 : 1.5,
+        "stroke-dasharray": done ? "" : "4 4"
+      }));
+    }
+    // nodes
+    for (n = 1; n <= 9; n++) {
+      st = STEPS[n];
+      var x = cx(n), y = cy(st.lane);
+      var isCur = state.step === n, isDone = state.step > n;
+      var g = el("g", { style: "cursor:" + (n <= state.max ? "pointer" : "default") });
+      if (isCur) g.appendChild(el("circle", { cx: x, cy: y, r: 22, fill: "rgba(77,107,255,0.35)" }));
+      var fill = isDone ? "#4d6bff" : isCur ? "#4d6bff" : "#0b1233";
+      var stroke = st.sharan ? "#ffd166" : "#8a9cff";
+      if (st.sharan && (isDone || isCur)) fill = isCur ? "#4d6bff" : "#c9a53f";
+      g.appendChild(el("circle", { cx: x, cy: y, r: 15, fill: fill, stroke: stroke, "stroke-width": 2 }));
+      g.appendChild(el("text", { x: x, y: y + 5, "text-anchor": "middle", fill: "#fff", "font-size": 13, "font-weight": 700 }, String(n)));
+      var label = st.node;
+      if (n === 4 && (state.d4 === "parts" || state.step > 4)) label = "Approves in parts";
+      if (n === 8 && (state.d8 === "scale" || state.step > 8)) label = "Scale up";
+      if (n === 6 && state.step >= 6) label = "Continue";
+      if (n === 7 && state.step >= 7) label = "Continue";
+      g.appendChild(el("text", { x: x, y: y + 32, "text-anchor": "middle", fill: isCur ? "#ffffff" : "#b8c2f0", "font-size": 11.5, "font-weight": isCur ? 700 : 400, stroke: "#0a1030", "stroke-width": 4, "paint-order": "stroke" }, label));
+      (function (target) {
+        g.addEventListener("click", function () { if (target <= state.max) go(target); });
+      })(n);
+      svg.appendChild(g);
+    }
+  }
+
+  // ---------- Render: side ----------
+  function renderSide() {
+    var c = conditions();
+    var labels = { notset: "Not set", pending: "Live", ok: "Met" };
+    document.getElementById("conds").innerHTML = c.map(function (x) {
+      return "<div class='cond'><span class='id'>" + x.id + "</span><div>" + x.t + "<div class='meta'>" + x.meta + "</div></div><span class='pill " + x.st + "'>" + labels[x.st] + "</span></div>";
+    }).join("") + (c[0].st === "notset" ? "<p class='empty'>Conditions are set when the Steering Committee approves.</p>" : "");
+    var L = logEntries();
+    document.getElementById("log").innerHTML = L.length ? L.map(function (e) {
+      return "<li><div class='when'>" + e[0] + " · <span class='who" + (e[3] ? " sc" : "") + "'>" + e[1] + "</span></div>" + e[2] + "</li>";
+    }).join("") : "<li class='empty'>No decisions yet.</li>";
+  }
+
+  // ---------- Render: stage content ----------
+  function head(s) {
+    var st = STEPS[s];
+    return "<div class='stage-head'><div class='letter'>" + st.letter + "</div><div><div class='eyebrow'>Step " + s + " of 9 · " + st.stage + "</div><div class='who'>" + st.who + "</div></div>" +
+      (st.sharan ? "<span class='badge-sharan'>★ Sharan decides</span>" : "") + "</div>";
+  }
+
+  function stageIntro() {
+    return "<div class='eyebrow'>The request</div>" +
+      "<h1>ClaimCheck: an AI claims pre-check</h1>" +
+      "<p class='lead'>A new Content SuperApp use case. Before promotional content goes to the client’s MLR review, ClaimCheck checks every claim against approved references and flags unsupported ones. Fewer flawed claims reach MLR, so there are fewer review cycles.</p>" +
+      "<div class='grid4' style='margin-top:14px'>" +
+        "<div class='stat'><div class='k'>Requesting BU</div><div class='v'>BU A</div></div>" +
+        "<div class='stat'><div class='k'>Archetype</div><div class='v'>02</div><div class='k'>Client product &amp; IP: clients pay</div></div>" +
+        "<div class='stat'><div class='k'>Ask</div><div class='v'>$1.5M</div><div class='k'>over 12 months</div></div>" +
+        "<div class='stat'><div class='k'>Sharan’s role</div><div class='v'>SteerCo</div><div class='k'>decides at steps 4 and 8</div></div>" +
+      "</div>" +
+      "<h2>Money is released in three instalments</h2>" +
+      "<table><tr><th>Instalment</th><th class='num'>Amount</th><th>For</th><th>Released when</th></tr>" +
+      "<tr><td>1</td><td class='num'>$0.4M</td><td>Prototype</td><td>Steering Committee approves</td></tr>" +
+      "<tr><td>2</td><td class='num'>$0.6M</td><td>Paid pilots</td><td>Checkpoint 1 is met</td></tr>" +
+      "<tr><td>3</td><td class='num'>$0.5M</td><td>Scale</td><td>Checkpoint 3 is met</td></tr></table>" +
+      "<h2>The rules</h2>" +
+      "<table>" +
+      "<tr><td>What counts as an investment</td><td>$0.1M or more above the approved budget</td></tr>" +
+      "<tr><td>Who approves</td><td>$0.1–0.5M: Steering Committee by written reply within 5 days<br>$0.5–3M: Steering Committee in a meeting</td></tr>" +
+      "<tr><td>First release</td><td>At most 40% of the total before Checkpoint 1</td></tr>" +
+      "<tr><td>Review Forum can continue alone</td><td>Spend within ±10% of plan and no more than 1 month late</td></tr>" +
+      "<tr><td>Return hurdle</td><td>Payback within 24 months · downside case within 36 months</td></tr>" +
+      "<tr><td>Conditions</td><td>Each has an owner, a date and a test. Missing one stops the next release.</td></tr>" +
+      "</table>";
+  }
+
+  function stage1() {
+    return head(1) + "<h1>Where are we today?</h1>" +
+      "<p class='lead'>Before any money moves, S&amp;O writes down the starting position. Every later number is compared with this.</p>" +
+      "<div class='grid4' style='margin-top:14px'>" +
+        "<div class='stat'><div class='v'>14</div><div class='k'>people doing a manual claims check</div></div>" +
+        "<div class='stat'><div class='v'>$0.84M</div><div class='k'>spent on it a year</div></div>" +
+        "<div class='stat'><div class='v'>3.1</div><div class='k'>MLR review cycles per asset</div></div>" +
+        "<div class='stat'><div class='v'>4</div><div class='k'>clients asking for faster MLR</div></div>" +
+      "</div>" +
+      "<p class='muted' style='margin-top:12px'>Data from: Finance system (spend) · HR system (headcount) · timesheets (hours) · CRM (client asks) · SuperApp admin console (usage).</p>" +
+      "<div class='stamp'>BASELINE LOCKED</div>";
+  }
+
+  function stage2() {
+    var q = QUESTIONS[state.q];
+    var list = QUESTIONS.map(function (x, i) {
+      return "<button class='fq-item" + (i === state.q ? " active" : "") + (state.seen[i] ? " seen" : "") + "' data-q='" + i + "'><span class='n'>" + (i + 1) + "</span>" + x.q + "</button>";
+    }).join("");
+    return head(2) + "<h1>BU A makes the case</h1>" +
+      "<h2>First: is it a real investment?</h2>" +
+      "<ul class='checklist'><li>$1.5M above the approved budget</li><li>For a set period: 12 months</li><li>One owner: BU A product lead</li><li>All costs listed</li></ul>" +
+      "<h2>Then: the five questions for archetype 02</h2>" +
+      "<div class='fq'><div class='fq-list'>" + list + "</div>" +
+      "<div class='fq-detail fade'><div class='sub' style='margin-top:0'>Question " + (state.q + 1) + " of 5</div><h3 style='font-size:19px;margin-top:4px'>" + q.q + "</h3>" +
+      "<div class='sub'>What to show</div><p>" + q.show + "</p>" +
+      "<div class='sub'>BU A’s answer</div>" + q.ans + "</div></div>";
+  }
+
+  function bar(label, val, hurdle, max, unit) {
+    return "<div class='row'><div>" + label + "</div><div class='bar'><div class='fill' style='width:" + (val / max * 100) + "%'></div><div class='mark' style='left:" + (hurdle / max * 100) + "%'></div></div>" +
+      "<div><b class='ok'>" + val + " " + unit + "</b> <span class='muted'>(hurdle " + hurdle + ")</span></div></div>";
+  }
+
+  function stage3() {
+    return head(3) + "<h1>Is it worth it?</h1>" +
+      "<p class='lead'>The S&amp;O leader chairs. Finance has checked the numbers. The BU A head presents but does not vote.</p>" +
+      "<div class='checks' style='margin-top:12px'>" +
+        "<div class='check pass'><div class='lbl'>Check 1</div><div>Real investment?</div><div class='res ok'>✓ Yes</div></div>" +
+        "<div class='check pass'><div class='lbl'>Check 2</div><div>Proof good enough?</div><div class='res ok'>✓ All five answered with evidence</div></div>" +
+        "<div class='check pass'><div class='lbl'>Check 3</div><div>Return worth it?</div><div class='res ok'>✓ Clears both hurdles</div></div>" +
+      "</div>" +
+      "<h2>Check 3: Finance’s numbers</h2>" +
+      "<p class='muted'>Full cost and benefit assumptions checked against the baseline. Payback must land inside the hurdle (yellow line).</p>" +
+      "<div class='hurdle'>" + bar("Base case payback", 20, 24, 40, "months") + bar("Downside payback", 34, 36, 40, "months") + "</div>" +
+      "<p class='muted' style='font-size:13px'>Downside case: half the clients, 20% lower price.</p>" +
+      "<h2>Recommendation: Approve in parts</h2>" +
+      "<p>Approve the full $1.5M. Release <b>$0.4M now</b> for the prototype. The rest waits for the checkpoints, with three conditions:</p>" +
+      "<table><tr><th>Condition</th><th>Owner</th><th>By</th></tr>" +
+      "<tr><td>C1 · Design-partner agreement signed</td><td>BU A head</td><td>Month 3</td></tr>" +
+      "<tr><td>C2 · Security review passed before any client data is used</td><td>InfoSec</td><td>Before data access</td></tr>" +
+      "<tr><td>C3 · Model usage at or below $15k a month</td><td>Product lead</td><td>Monthly</td></tr></table>";
+  }
+
+  function decisionBlock(step, options, chosen, outcome) {
+    var locked = !!chosen && outcome && outcome.ok;
+    var btns = options.map(function (o) {
+      return "<button class='opt" + (chosen === o.id ? " chosen" : "") + "' data-dec='" + step + ":" + o.id + "'" + (locked ? " disabled" : "") + ">" + o.label + "</button>";
+    }).join("");
+    var out = "";
+    if (outcome) {
+      out = "<div class='outcome fade " + (outcome.ok ? "good" : "warn") + "'>" + outcome.html +
+        (outcome.ok ? "" : "<div style='margin-top:10px'><button class='btn small' data-retry='" + step + "'>Choose again</button></div>") + "</div>";
+    }
+    return "<div class='decide'><div><span class='star'>★</span> <b>Sharan, your call.</b> <span class='muted'>Pick one.</span></div><div class='options'>" + btns + "</div>" + out + "</div>";
+  }
+
+  var OUT4 = {
+    parts: { ok: true, html: "<b>Approved in parts.</b> $0.4M is released for the prototype and $1.1M is held. Conditions C1–C3 are now live." },
+    full:  { ok: false, html: "<b>All $1.5M goes out before any proof.</b> If the design partner doesn’t sign by month 3, most of the money is already committed and the conditions have no teeth. We lose our leverage." },
+    back:  { ok: false, html: "<b>Sent back.</b> That’s allowed, but the case already answers all five questions with evidence. Sending it back costs about 5 weeks and teaches us nothing new." },
+    decline: { ok: false, html: "<b>Declined.</b> We give up a client-funded product that clears both return hurdles, with 4 clients already asking for it." }
+  };
+  var OUT8 = {
+    scale: { ok: true, html: "<b>Scale up.</b> The last $0.5M is released. All $1.5M is now out, each instalment only after its proof." },
+    stop:  { ok: false, html: "<b>Stopped.</b> The $1.0M already spent doesn’t count either way: it is gone whatever we decide. Stopping gives up $0.9M a year of revenue that is already working and paid for." }
+  };
+
+  function stage4() {
+    return head(4) + "<h1>The one-page brief</h1>" +
+      "<p class='lead'>$1.5M is above $0.5M, so this comes to the Steering Committee in a meeting, not by written reply.</p>" +
+      "<div class='brief' style='margin-top:12px'>" +
+        "<div class='row'><div>The ask</div><div>$1.5M over 12 months for ClaimCheck, in three instalments</div></div>" +
+        "<div class='row'><div>Our recommendation</div><div><b>Approve in parts.</b> Release $0.4M now; hold $1.1M for the checkpoints</div></div>" +
+        "<div class='row'><div>The three checks</div><div><span class='ok'>✓</span> Real investment · <span class='ok'>✓</span> Proof good enough · <span class='ok'>✓</span> Return worth it</div></div>" +
+        "<div class='row'><div>The numbers</div><div>Payback 20 months (hurdle 24) · downside 34 months (hurdle 36) · $0.9M a year revenue at 3 clients</div></div>" +
+        "<div class='row'><div>Conditions</div><div>C1 design partner signed by month 3 · C2 security review before client data · C3 model usage ≤ $15k a month</div></div>" +
+        "<div class='row'><div>Review Forum view</div><div>Unanimous. Finance has checked the numbers</div></div>" +
+        "<div class='row'><div>If not approved</div><div>Manual claims checks continue at $0.84M a year; the 4 client asks go unanswered</div></div>" +
+      "</div>" +
+      decisionBlock(4, [
+        { id: "full", label: "Approve" },
+        { id: "parts", label: "Approve in parts" },
+        { id: "back", label: "Send back" },
+        { id: "decline", label: "Decline" }
+      ], state.d4 || state.try4, state.d4 ? OUT4[state.d4] : state.try4 ? OUT4[state.try4] : null);
+  }
+
+  function stage5() {
+    return head(5) + "<h1>Is the money going where we said?</h1>" +
+      "<p class='lead'>Every month, from the same sources as the baseline so actuals compare like for like. No meeting needed.</p>" +
+      "<table style='margin-top:12px'><tr><th></th><th class='num'>Month 1</th><th class='num'>Month 2</th><th class='num'>Month 3</th><th class='num'>Total</th></tr>" +
+      "<tr><td>Spend · actual</td><td class='num'>$0.13M</td><td class='num'>$0.13M</td><td class='num'>$0.14M</td><td class='num'><b>$0.40M</b></td></tr>" +
+      "<tr><td>Spend · plan</td><td class='num'>$0.13M</td><td class='num'>$0.13M</td><td class='num'>$0.14M</td><td class='num'>$0.40M</td></tr>" +
+      "<tr><td>Model usage (C3 cap $15k)</td><td class='num ok'>$12k ✓</td><td class='num ok'>$14k ✓</td><td class='num ok'>$13k ✓</td><td class='num'></td></tr>" +
+      "<tr><td>Prototype build</td><td class='num ok'>On track</td><td class='num ok'>On track</td><td class='num ok'>Done</td><td class='num'></td></tr>" +
+      "</table>" +
+      "<p style='margin-top:12px'><span class='ok'>✓ On plan.</span> Finance reports the actuals, BU A has no variances to explain, and S&amp;O reviews.</p>";
+  }
+
+  function checkpointTable(rows) {
+    return "<table style='margin-top:12px'><tr><th>What we check</th><th>Plan</th><th>Actual</th></tr>" +
+      rows.map(function (r) { return "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td><td class='ok'>✓ " + r[2] + "</td></tr>"; }).join("") + "</table>";
+  }
+  function threeChecks(a, b, c) {
+    return "<div class='checks' style='margin-top:14px'>" +
+      "<div class='check pass'><div class='lbl'>Check 1</div><div>On plan?</div><div class='res ok'>✓ " + a + "</div></div>" +
+      "<div class='check pass'><div class='lbl'>Check 2</div><div>Reason still true?</div><div class='res ok'>✓ " + b + "</div></div>" +
+      "<div class='check pass'><div class='lbl'>Check 3</div><div>Return holding?</div><div class='res ok'>✓ " + c + "</div></div></div>";
+  }
+
+  function stage6() {
+    return head(6) + "<h1>Checkpoint 1 · Prototype</h1>" +
+      "<p class='lead'>Is it working? The Review Forum checks the proof before the next $0.6M goes out.</p>" +
+      checkpointTable([
+        ["Prototype built", "Month 3", "Built"],
+        ["C1 · Design partner signed", "By month 3", "Signed agreement (BU A)"],
+        ["C2 · Security review passed", "Before client data", "Passed (InfoSec)"],
+        ["Spend vs plan", "$0.40M", "$0.40M (Finance)"]
+      ]) +
+      threeChecks("Yes", "Yes", "Payback 20 months") +
+      "<div class='rf-decision fade'><b>Review Forum decides: Continue.</b> Within its limits (spend within ±10%, on time), so this does not need the Steering Committee. <b>$0.6M released</b> for paid pilots.</div>";
+  }
+
+  function stage7() {
+    return head(7) + "<h1>Checkpoint 2 · Paid pilots</h1>" +
+      "<p class='lead'>Are clients paying to try it?</p>" +
+      checkpointTable([
+        ["Paid pilots signed, with value", "2 pilots", "2 × $60k = $120k"],
+        ["Run cost to date", "$0.76M", "$0.78M (+3%, within ±10%)"],
+        ["MLR cycles per asset in pilots", "Below 3.1", "2.2 (was 3.1)"]
+      ]) +
+      threeChecks("Yes", "MLR cycles down 29%", "Payback 20 months") +
+      "<div class='rf-decision fade'><b>Review Forum decides: Continue.</b> No new money needed: instalment 2 already covers this phase.</div>";
+  }
+
+  function stage8() {
+    return head(8) + "<h1>Checkpoint 3 · Scale</h1>" +
+      "<p class='lead'>Scaling up releases the last $0.5M, so it comes to the Steering Committee.</p>" +
+      checkpointTable([
+        ["Paying clients", "3", "3"],
+        ["Run cost vs plan", "$1.00M", "$1.02M (+2%)"],
+        ["Revenue billed", "$0.40M", "$0.41M"]
+      ]) +
+      threeChecks("Yes", "Yes", "Payback still 20 months") +
+      "<p class='muted' style='margin-top:12px'>Rule: money already spent should not drive the decision.</p>" +
+      decisionBlock(8, [
+        { id: "scale", label: "Scale up" },
+        { id: "stop", label: "Stop" }
+      ], state.d8 || state.try8, state.d8 ? OUT8[state.d8] : state.try8 ? OUT8[state.try8] : null);
+  }
+
+  function stage9() {
+    return head(9) + "<h1>Quarterly note to the Steering Committee</h1>" +
+      "<div class='brief' style='margin-top:12px'>" +
+        "<div class='row'><div>Investment</div><div>ClaimCheck · BU A · Archetype 02</div></div>" +
+        "<div class='row'><div>Decision path</div><div>Approve in parts → Continue → Continue → Scale up</div></div>" +
+        "<div class='row'><div>Money</div><div>$1.5M approved · released in 3 steps · $1.02M spent to date</div></div>" +
+        "<div class='row'><div>Conditions</div><div>C1, C2, C3 all met</div></div>" +
+        "<div class='row'><div>Value so far</div><div>3 paying clients · $0.9M a year in licences · MLR cycles down 29% (3.1 → 2.2)</div></div>" +
+        "<div class='row'><div>Next</div><div>Track run cost and new clients monthly; next review next quarter</div></div>" +
+      "</div>" +
+      "<h2 style='margin-top:24px;font-size:22px'>Same $1.5M. The difference is that each dollar waited for its proof.</h2>" +
+      "<p style='margin-top:14px'><button class='btn' id='again'>Run it again</button></p>";
+  }
+
+  var RENDER = [stageIntro, stage1, stage2, stage3, stage4, stage5, stage6, stage7, stage8, stage9];
+
+  // ---------- Render all ----------
+  function render(animate) {
+    var stage = document.getElementById("stage");
+    stage.innerHTML = RENDER[state.step]();
+    if (animate) { stage.classList.remove("fade"); void stage.offsetWidth; stage.classList.add("fade"); }
+    document.getElementById("month").textContent = state.step === 0 ? "Before we start" : STEPS[state.step].month;
+    renderMoney();
+    renderLane();
+    renderSide();
+    // nav
+    document.getElementById("back").disabled = state.step === 0;
+    var next = document.getElementById("next");
+    next.disabled = !canAdvance();
+    next.textContent = state.step === 0 ? "Start →" : state.step === LAST ? "Done" : "Next →";
+    var dots = "";
+    for (var i = 0; i <= LAST; i++) {
+      var cls = i === state.step ? "current" : i <= state.max ? "done" : "";
+      dots += "<button class='dot " + cls + "' data-go='" + i + "'" + (i > state.max ? " disabled" : "") + " aria-label='" + (i === 0 ? "Intro" : "Step " + i) + "'>" + (i === 0 ? "i" : i) + "</button>";
+    }
+    document.getElementById("dots").innerHTML = dots;
+  }
+
+  function go(n) {
+    state.preview = null;
+    state.step = n;
+    if (n > state.max) state.max = n;
+    render(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // ---------- Events ----------
+  document.getElementById("next").addEventListener("click", function () { if (canAdvance()) go(state.step + 1); });
+  document.getElementById("back").addEventListener("click", function () { if (state.step > 0) go(state.step - 1); });
+  document.getElementById("restart").addEventListener("click", function () { state = fresh(); prevMoney = {}; render(true); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight" && canAdvance()) go(state.step + 1);
+    if (e.key === "ArrowLeft" && state.step > 0) go(state.step - 1);
+  });
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-q],[data-dec],[data-retry],[data-go],#again");
+    if (!t) return;
+    if (t.id === "again") { state = fresh(); prevMoney = {}; render(true); return; }
+    if (t.hasAttribute("data-go")) { go(+t.getAttribute("data-go")); return; }
+    if (t.hasAttribute("data-q")) {
+      state.q = +t.getAttribute("data-q"); state.seen[state.q] = true; render(false); return;
+    }
+    if (t.hasAttribute("data-retry")) {
+      var s = t.getAttribute("data-retry");
+      state["try" + s] = null; state.preview = null; render(false); return;
+    }
+    if (t.hasAttribute("data-dec")) {
+      var parts = t.getAttribute("data-dec").split(":"), step = parts[0], id = parts[1];
+      if (step === "4") {
+        if (id === "parts") { state.d4 = "parts"; state.try4 = null; state.preview = null; }
+        else {
+          state.try4 = id;
+          state.preview = id === "full"
+            ? { approved: 1.5, released: 1.5, spent: 0, held: 0, warn: { released: true, held: true } }
+            : null;
+        }
+      } else {
+        if (id === "scale") { state.d8 = "scale"; state.try8 = null; state.preview = null; }
+        else { state.try8 = id; state.preview = { released: 1.0, held: 0.5, warn: { held: true } }; }
+      }
+      render(false);
+    }
+  });
+
+  render(false);
+})();
+</script>
+</body>
+</html>
