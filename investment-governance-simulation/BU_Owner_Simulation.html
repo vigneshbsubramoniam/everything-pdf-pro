@@ -135,6 +135,11 @@
   .chk .s { font-weight: 700; margin-top: 2px; }
   .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: 0; }
   .dot.g { background: var(--g); } .dot.a { background: var(--a); } .dot.r { background: var(--r); } .dot.n { background: var(--n); }
+  .numbers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .num { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: rgba(5,9,30,.45); }
+  .num .t { font-size: 13px; color: var(--muted); }
+  .num .v { font-size: 22px; font-weight: 800; letter-spacing: -.3px; margin-top: 2px; }
+  .num .s { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
   .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
   .box { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: rgba(5,9,30,.35); }
   .box h3 { margin: 0 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
@@ -153,6 +158,7 @@
   @media (max-width: 760px) { .reward { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 680px) {
     .checks, .cols { grid-template-columns: 1fr; }
+    .numbers { grid-template-columns: 1fr 1fr; }
     .reward { grid-template-columns: repeat(2, 1fr); }
     .card { padding: 20px 18px; }
     h1 { font-size: 24px; }
@@ -164,9 +170,9 @@
     header, .progress, .no-print, details { display: none !important; }
     .wrap { max-width: none; padding: 0; }
     .card { background: #fff; border: 0; padding: 0; }
-    .lead, .muted, .route b, .chk .t, .box h3, .foot, .eyebrow, .sect-h, .rw .ln { color: #444; }
+    .lead, .muted, .route b, .chk .t, .box h3, .foot, .eyebrow, .sect-h, .rw .ln, .num .t, .num .s { color: #444; }
     .chip { color: #333; border-color: #bbb; }
-    .chk, .box, .rw { background: #fff !important; border-color: #ccc !important; }
+    .chk, .box, .rw, .num { background: #fff !important; border-color: #ccc !important; }
     .decision { background: #fff !important; }
     h1 { font-size: 20px; }
   }
@@ -190,6 +196,7 @@
   "use strict";
 
   // =================== Indicative thresholds (shown as [ ] on screen) ===================
+  var HURDLE_MONTHS = 24;      // payback hurdle
   var DOWNSIDE_MONTHS = 36;    // downside-case payback limit
   var MIN_SIZE_M = 0.1;        // governance threshold
   var WRITTEN_LIMIT_M = 0.5;   // written-approval limit
@@ -214,6 +221,39 @@
     if (/^(million|mn|m)$/.test(u)) return v;
     if (/^(thousand|k)$/.test(u)) return v / 1000;
     return v >= 1000 ? v / 1e6 : v;
+  }
+  // Money amounts written with $ or a unit, in $M, in the order they appear
+  function moneyList(s) {
+    var out = [], re = /\$\s*(\d+(\.\d+)?)\s*(million|mn|m|thousand|k)?\b|(\d+(\.\d+)?)\s*(million|mn|m|thousand|k)\b/g, m;
+    s = L(s).replace(/,/g, "");
+    while ((m = re.exec(s))) {
+      var v = parseFloat(m[1] || m[4]), u = m[3] || m[6] || "";
+      out.push(/^(thousand|k)$/.test(u) ? v / 1000 : (!u && v >= 1000 ? v / 1e6 : v));
+    }
+    return out;
+  }
+  function r2(x) { return Math.round(x * 100) / 100; }
+  // Reads "Revenue a, b, c. Cost x, y, z" and works out 3-year totals and the implied payback month
+  function figures(s) {
+    var t = L(s), i = t.search(/cost/), j = t.search(/revenue|savings|income/);
+    if (i < 0 || j < 0) return null;
+    var revPart = j < i ? t.slice(j, i) : t.slice(j), costPart = j < i ? t.slice(i) : t.slice(i, j);
+    var rv = moneyList(revPart), cs = moneyList(costPart);
+    if (rv.length < 2 || cs.length < 2) return null;
+    var n = Math.min(rv.length, cs.length, 3), cum = 0, payback = null, rev = 0, cost = 0;
+    for (var k = 0; k < n; k++) {
+      var net = rv[k] - cs[k]; rev += rv[k]; cost += cs[k];
+      if (payback === null && net > 0 && cum + net >= 0) payback = Math.round(k * 12 + (-cum / net) * 12);
+      cum += net;
+    }
+    return { rev: r2(rev), cost: r2(cost), net: r2(rev - cost), payback: payback, years: n };
+  }
+  // Picks the downside payback months from a sentence like "payback is about 35 months"
+  function downsideMonths(s) {
+    var m = L(s).match(/(\d+(\.\d+)?)\s*(months?|yrs?|years?)/g);
+    if (!m) return null;
+    var last = m[m.length - 1], v = parseFloat(last);
+    return /y/.test(last.replace(/\d|\.|\s/g, "")) ? Math.round(v * 12) : v;
   }
   function dates(s) { return (L(s).match(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b|\bmonth\s*\d+|\bq[1-4]\b|\b20\d\d\b/g) || []).length; }
   function words(s) { return (s || "").trim().split(/\s+/).filter(Boolean).length; }
@@ -334,12 +374,21 @@
     ]},
 
     { id: "ret", tag: "<b>E</b> · Feeds Check 3: Return worth it?", title: "Is the return worth it?", sub: "Finance checks this against the baseline, the [24-month] payback hurdle and a downside case. Attach your business case if you have one.", qs: [
-      { id: "r1", q: "What revenue and what total cost do you expect in years 1, 2 and 3?", h: "e.g. Revenue $0.15M, $1.2M, $2.1M. Cost $1.5M, $0.4M, $0.5M. Or attach the business case below",
+      { id: "r1", q: "What revenue and what total cost (including running cost) do you expect in years 1, 2 and 3?", h: "e.g. Revenue $0.3M, $2.0M, $2.8M. Cost $1.5M, $0.5M, $0.6M. Or attach the business case below",
         g: "Green: revenue and cost for each year. Amber: incomplete.", c: "Add year-by-year revenue and cost",
-        r: function (s) { var n = nums(s).length; return n >= 4 ? G("Year-by-year given") : n ? A("Incomplete") : A("No figures"); } },
-      { id: "r2", q: "What is the biggest risk to the return, and what happens to payback if only half the clients come?", h: "e.g. Pilots don’t convert. With half the clients, payback moves from 20 to 34 months",
-        g: "Green: a named risk and a downside within [36 months]. Amber: vague. Red: never pays back, or beyond [36 months].", c: "Name the biggest risk and add a downside case",
-        r: function (s) { if (has(s, /never|no payback/)) return R("Downside never pays back"); var n = maxNum(s); if (n !== null && n > DOWNSIDE_MONTHS && has(s, /month/)) return R("Downside beyond [36 months]"); return words(s) >= 8 ? G("Risk and downside stated") : A("Risk or downside vague"); } }
+        r: function (s) { var f = figures(s); if (f) return G("3-year revenue $" + f.rev + "M vs cost $" + f.cost + "M"); var n = nums(s).length; return n >= 4 ? G("Year-by-year given") : n ? A("Incomplete") : A("No figures"); } },
+      { id: "r2", q: "In how many months do we get the money back (payback)?", h: "e.g. About 22 months",
+        g: "Green: within the [24-month] hurdle and consistent with the year-by-year figures. Amber: not given, or doesn’t match the figures. Red: beyond [24 months].", c: "Show the payback month and how it is worked out",
+        r: function (s) {
+          var n = maxNum(s); if (n === null) return A("No payback given");
+          if (has(s, /year/) && !has(s, /month/)) n = n * 12;
+          if (n > HURDLE_MONTHS) return R("Payback " + n + " months: beyond [24]");
+          var f = figures(state.answers.r1);
+          if (f && f.payback !== null && Math.abs(f.payback - n) > 6) return A(n + " months stated; figures imply about " + f.payback);
+          return G(n + " months, within [24]"); } },
+      { id: "r3", q: "What is the biggest risk, and what is the payback if it happens (for example, only half the clients come)?", h: "e.g. Pilots don’t convert to licences. With half the clients, payback is about 35 months",
+        g: "Green: a named risk and a downside payback within [36 months]. Amber: vague. Red: never pays back, or beyond [36 months].", c: "Name the biggest risk and add a downside payback",
+        r: function (s) { if (has(s, /never|no payback/)) return R("Downside never pays back"); var n = downsideMonths(s); if (n !== null && n > DOWNSIDE_MONTHS) return R("Downside " + n + " months: beyond [36]"); if (n === null) return A("Downside payback not given"); return words(s) >= 6 ? G("Downside " + n + " months, within [36]") : A("Risk not named"); } }
     ]}
   ];
   SECTIONS.forEach(function (s, i) { if (!s.tag) s.tag = "<b>E</b> · Feeds Check 2: Proof good enough? · question " + (i - 2) + " of 5"; });
@@ -366,8 +415,9 @@
     p4b: "Yes: team, AI model usage, security review, client data access and support are all in. Running cost after year one is about $0.27M a year.",
     p5a: "Annual licence of $300k per client; pilots are paid at $60k for 3 months.",
     p5b: "$0.9M revenue a year at 3 clients, about 70% margin after $90k per client to serve.",
-    r1: "Revenue: $0.15M, $1.2M, $2.1M. Cost: $1.5M, $0.4M, $0.5M.",
-    r2: "Biggest risk: pilots don't convert to paid licences. With half the clients, payback moves from about 20 to about 34 months."
+    r1: "Revenue: $0.3M, $2.0M, $2.8M. Cost: $1.5M, $0.5M, $0.6M.",
+    r2: "About 22 months.",
+    r3: "Biggest risk: pilots don't convert to paid licences. With half the clients, payback is about 35 months."
   };
 
   // =================== State ===================
@@ -676,7 +726,7 @@
     var answered = caseRows.filter(function (r) { return r.answer || (files[r.sec.id] || []).length; }).length;
     var nFiles = allFiles().length;
     var plan = rows.filter(function (r) { return r.id === "p4a"; })[0];
-    var risk = rows.filter(function (r) { return r.id === "r2"; })[0];
+    var risk = rows.filter(function (r) { return r.id === "r3"; })[0];
     var reward = [
       { L: "R", nm: "Record baseline", st: worst(base), lbl: worst(base) === "g" ? "Done" : "To confirm",
         ln: worst(base) === "g" ? "Spend: " + short(A_.s1, 40) + " · People: " + short(A_.s2, 40) : "S&O to confirm from Finance, HR and CRM" },
@@ -685,7 +735,7 @@
       { L: "W", nm: "Weigh value & risks", st: { "d-g": "g", "d-a": "a", "d-r": "r", "d-n": "n" }[DEC[d]], lbl: d, ln: "Three checks → " + d, cur: true },
       // A, R and D happen after approval, so they show what comes next, not a status
       { L: "A", nm: "Assess updates", next: true, st: "n", lbl: funded ? "Next · monthly" : "Not started",
-        ln: funded ? "Finance reports spend vs plan; BU explains variances; S&O reviews. Watch: " + (risk && risk.rag === "g" ? short(A_.r2, 48) : "biggest risk, to be named") : "Only if funded" },
+        ln: funded ? "Finance reports spend vs plan; BU explains variances; S&O reviews. Watch: " + (risk && risk.rag === "g" ? short((A_.r3 || "").replace(/^\s*biggest risk\s*:\s*/i, "").split(/[.;]/)[0], 48) : "biggest risk, to be named") : "Only if funded" },
       { L: "R", nm: "Review performance", next: true, st: "n", lbl: funded ? "Next · each checkpoint" : "Not started",
         ln: funded ? ARCH.checkpoints + ". " + (plan && plan.rag === "g" ? "Each releases the next instalment" : "Milestones still to be dated") : "Only if funded" },
       { L: "D", nm: "Document outcomes", next: true, st: "n", lbl: funded ? "Next · quarterly" : "Not started",
@@ -703,6 +753,20 @@
       if (!ev) ev = { rows: offlineRatings(), summary: "", payback: "", mode: "Rule-based evaluation against the guardrails" + (sampler ? " (AI evaluation was unavailable)" : "") };
       ev.d = decide(ev); result = ev; renderEval();
     });
+  }
+
+  function numbersStrip(ev, retFiles) {
+    var A_ = state.answers, f = figures(A_.r1), amount = moneyM(A_.a1);
+    var byId = {}; ev.rows.forEach(function (r) { byId[r.id] = r; });
+    var pb = maxNum(A_.r2); if (pb !== null && has(A_.r2, /year/) && !has(A_.r2, /month/)) pb = pb * 12;
+    var dn = downsideMonths(A_.r3);
+    function tile(t, v, sub, rag) { return '<div class="num"><div class="t">' + (rag ? '<span class="dot ' + rag + '"></span>' : "") + esc(t) + '</div><div class="v">' + esc(v) + '</div><div class="s">' + esc(sub) + '</div></div>'; }
+    return '<div class="numbers">' +
+      tile("Ask", amount !== null ? "$" + amount + "M" : "—", byId.p4a && byId.p4a.rag === "g" ? "Released in instalments" : "Instalments to be agreed", null) +
+      tile("Payback", pb !== null ? pb + " months" : "Not given", "Hurdle [24 months]" + (f && f.payback !== null ? " · figures imply ~" + f.payback : ""), byId.r2 && byId.r2.rag) +
+      tile("Downside payback", dn !== null ? dn + " months" : "Not given", "Limit [36 months]", byId.r3 && byId.r3.rag) +
+      tile("3-year revenue vs cost", f ? "$" + f.rev + "M / $" + f.cost + "M" : (retFiles.length ? "See business case" : "Not given"), f ? "Net $" + f.net + "M over " + f.years + " years" : "Finance to work out", byId.r1 && byId.r1.rag) +
+      '</div>';
   }
 
   function renderEval() {
@@ -732,6 +796,7 @@
 
       '<div class="decision ' + DEC[d.decision] + '"><div class="lbl">Recommendation</div><div class="val">' + esc(d.decision) + '</div><p>' + esc(d.why) + '</p></div>' +
 
+      '<div class="sect-h">The numbers</div>' + numbersStrip(ev, retFiles) +
       '<div class="sect-h">The three checks</div>' +
       '<div class="checks">' + d.checks.map(function (c) {
         return '<div class="chk"><div class="t">' + esc(c.t) + '</div><div class="s"><span class="dot ' + c.rag + '"></span>' + esc(c.line) + '</div></div>';
@@ -749,9 +814,7 @@
       }).join("") + '</div>' +
 
       '<div class="route"><p><b>Summary:</b> ' + esc(autoSummary) + '</p>' +
-      (ev.payback ? '<p><b>Payback (estimate):</b> ' + esc(ev.payback) + ' Finance to confirm against the baseline and the [24-month] hurdle.</p>' :
-        retFiles.length ? '<p><b>Payback:</b> Business case attached (' + esc(retFiles.map(function (f) { return f.name; }).join(", ")) + '). Finance to compute payback and check it against the baseline, the [24-month] hurdle and the downside case.</p>' :
-        '<p><b>Payback:</b> Finance to calculate from the year-by-year figures and check against the baseline, the [24-month] hurdle and the downside case.</p>') +
+      '<p><b>Finance check:</b> Confirm the revenue and cost assumptions against the baseline' + (retFiles.length ? ' and the attached business case (' + esc(retFiles.map(function (f) { return f.name; }).join(", ")) + ')' : '') + ', then the payback against the [24-month] hurdle and the downside against [36 months].' + (ev.payback ? ' AI estimate: ' + esc(ev.payback) : '') + '</p>' +
       '<p><b>Next step:</b> ' + esc(d.next) + '</p>' +
       (d.route ? '<p><b>Who decides:</b> ' + esc(d.route) + '</p>' : "") +
       (fl.length ? '<p><b>Evidence attached:</b> ' + esc(fl.map(function (x) { return x.f.name; }).join(", ")) + '</p>' : "") + '</div>' +
