@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investment Governance Simulation</title>
+<style>
+  :root {
+    --bg: #070b1f;
+    --bg-2: #0d1538;
+    --panel: rgba(40, 54, 130, 0.30);
+    --panel-2: rgba(60, 80, 180, 0.40);
+    --line: rgba(140, 160, 255, 0.20);
+    --line-2: rgba(140, 160, 255, 0.40);
+    --text: #eef1ff;
+    --muted: #a2addb;
+    --faint: #6f7bab;
+    --accent: #4d6bff;
+    --g: #3ddc97;
+    --a: #ffb547;
+    --r: #ff6b7a;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh; color: var(--text);
+    background: radial-gradient(1100px 560px at 80% -10%, rgba(77,107,255,.26), transparent 60%), linear-gradient(180deg, var(--bg-2), var(--bg));
+    background-color: var(--bg);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; font-size: 16px; line-height: 1.5;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 20px 48px; }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 0; }
+  .brand b { font-size: 18px; } .brand span { color: var(--muted); margin-left: 8px; }
+  .chip { font-size: 13px; color: var(--muted); border: 1px solid var(--line-2); border-radius: 999px; padding: 4px 12px; white-space: nowrap; }
+  .progress { height: 4px; background: rgba(255,255,255,.08); border-radius: 999px; overflow: hidden; margin-bottom: 22px; }
+  .progress i { display: block; height: 100%; background: var(--accent); transition: width .3s; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px 28px; }
+  .eyebrow { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .7px; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 6px 0 8px; letter-spacing: -.5px; }
+  h2 { font-size: 19px; margin: 0 0 10px; }
+  .lead { color: #cfd6ff; margin: 0 0 6px; }
+  .muted { color: var(--muted); }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  .btn { border: 1px solid var(--line-2); background: var(--panel); border-radius: 999px; padding: 10px 22px; }
+  .btn:hover:not(:disabled) { background: var(--panel-2); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); font-weight: 600; }
+  .btn.link { border: 0; background: none; padding: 4px 0; color: #9fb0ff; text-decoration: underline; }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; gap: 12px; }
+
+  /* Start */
+  .types { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0 6px; }
+  .type { text-align: left; border: 1px solid var(--line-2); background: rgba(10,16,50,.45); border-radius: 14px; padding: 18px; }
+  .type:hover { border-color: #9fb0ff; }
+  .type.sel { border-color: var(--accent); background: var(--panel-2); box-shadow: 0 0 0 2px var(--accent) inset; }
+  .type .n { font-size: 26px; font-weight: 800; color: #8a9cff; }
+  .type b { display: block; font-size: 17px; margin: 2px 0 6px; }
+  .type span { color: var(--muted); font-size: 14px; }
+  .steps { margin: 18px 0 0; padding-left: 20px; color: #cfd6ff; }
+  .steps li { margin: 4px 0; }
+
+  /* Questions */
+  .q { padding: 18px 0; border-top: 1px solid var(--line); }
+  .q:first-of-type { border-top: 0; padding-top: 6px; }
+  .q label { display: block; font-weight: 600; font-size: 17px; }
+  .q .hint { color: var(--faint); font-size: 14px; margin: 2px 0 8px; }
+  .answer { display: flex; gap: 10px; align-items: flex-start; }
+  textarea {
+    flex: 1; min-height: 52px; resize: vertical; font: inherit; color: var(--text);
+    background: rgba(5, 9, 30, .65); border: 1px solid var(--line-2); border-radius: 12px; padding: 12px 14px;
+  }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+  .mic { flex: none; width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--panel); display: grid; place-items: center; }
+  .mic:hover { background: var(--panel-2); }
+  .mic svg { width: 22px; height: 22px; }
+  .mic.on { background: var(--r); border-color: var(--r); animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,107,122,.55); } 50% { box-shadow: 0 0 0 8px rgba(255,107,122,0); } }
+  @media (prefers-reduced-motion: reduce) { .mic.on { animation: none; } }
+  .live { font-size: 13px; color: var(--muted); margin-top: 6px; min-height: 0; }
+  .live:empty { display: none; }
+  audio { display: block; margin-top: 8px; height: 34px; max-width: 100%; }
+
+  /* Review */
+  .rsec { margin-top: 22px; }
+  .rsec-head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: 4px; }
+  .rq { padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .rq:last-child { border-bottom: 0; }
+  .rq .qq { color: var(--muted); font-size: 14px; }
+  .rq .aa { white-space: pre-wrap; }
+  .rq .aa.none { color: var(--r); font-style: italic; }
+  .notice { margin-top: 16px; padding: 12px 14px; border-radius: 10px; background: rgba(255,181,71,.10); border: 1px solid rgba(255,181,71,.45); font-size: 14px; }
+
+  /* Evaluation one-pager */
+  .ev-top { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .decision { margin: 18px 0 14px; border-radius: 14px; padding: 18px 20px; border: 1px solid; }
+  .decision .lbl { font-size: 13px; text-transform: uppercase; letter-spacing: .7px; opacity: .85; }
+  .decision .val { font-size: 28px; font-weight: 800; letter-spacing: -.4px; }
+  .decision p { margin: 4px 0 0; }
+  .d-g { border-color: var(--g); background: rgba(61,220,151,.10); } .d-g .val { color: var(--g); }
+  .d-a { border-color: var(--a); background: rgba(255,181,71,.10); } .d-a .val { color: var(--a); }
+  .d-r { border-color: var(--r); background: rgba(255,107,122,.10); } .d-r .val { color: var(--r); }
+  .d-n { border-color: var(--line-2); background: rgba(255,255,255,.04); } .d-n .val { color: var(--muted); }
+  .checks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .chk { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: rgba(5,9,30,.45); }
+  .chk .t { font-size: 13px; color: var(--muted); }
+  .chk .s { font-weight: 700; margin-top: 2px; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: 0; }
+  .dot.g { background: var(--g); } .dot.a { background: var(--a); } .dot.r { background: var(--r); }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  .box { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: rgba(5,9,30,.35); }
+  .box h3 { margin: 0 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+  .box ol, .box ul { margin: 0; padding-left: 20px; } .box li { margin: 5px 0; font-size: 14.5px; }
+  .box .none { color: var(--faint); font-size: 14px; }
+  .route { margin-top: 14px; font-size: 14.5px; }
+  .route b { color: #cfd6ff; }
+  details { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 10px; }
+  summary { cursor: pointer; color: #9fb0ff; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 8px; }
+  td, th { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  .foot { margin-top: 14px; font-size: 12.5px; color: var(--faint); }
+  .loading { text-align: center; padding: 40px 0; color: var(--muted); }
+
+  @media (max-width: 680px) {
+    .types, .checks, .cols { grid-template-columns: 1fr; }
+    .card { padding: 20px 18px; }
+    h1 { font-size: 24px; }
+    .chip.hide-sm { display: none; }
+  }
+  @media print {
+    body { background: #fff; color: #111; font-size: 12px; }
+    header, .progress, .no-print, details { display: none !important; }
+    .wrap { max-width: none; padding: 0; }
+    .card { background: #fff; border: 0; padding: 0; }
+    .lead, .muted, .route b, .chk .t, .box h3, .foot, .eyebrow { color: #444; }
+    .chip { color: #333; border-color: #bbb; }
+    .chk, .box { background: #fff; border-color: #ccc; }
+    .decision { background: #fff !important; }
+    h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><b>indegene</b><span>Investment Governance · Simulation</span></div>
+    <div style="display:flex;gap:8px">
+      <span class="chip hide-sm" id="chipType" hidden></span>
+      <span class="chip" id="chipStep" hidden></span>
+    </div>
+  </header>
+  <div class="progress"><i id="bar" style="width:0"></i></div>
+  <main id="app"></main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // =================== Helpers for the guardrail rules ===================
+  var HURDLE_MONTHS = 24;      // [indicative] payback / break-even hurdle
+  var MIN_SIZE_M = 0.1;        // [indicative] governance threshold
+  var WRITTEN_LIMIT_M = 0.5;   // [indicative] written approval limit
+
+  function L(s) { return (s || "").toLowerCase(); }
+  var WORDNUM = { zero: 0, none: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, twelve: 12 };
+  function nums(s) {
+    s = L(s).replace(/,/g, "");
+    var out = (s.match(/\d+(\.\d+)?/g) || []).map(parseFloat);
+    Object.keys(WORDNUM).forEach(function (w) { if (new RegExp("\\b" + w + "\\b").test(s)) out.push(WORDNUM[w]); });
+    return out;
+  }
+  function maxNum(s) { var n = nums(s); return n.length ? Math.max.apply(null, n) : null; }
+  function pcts(s) { return (L(s).match(/\d+(\.\d+)?\s*%/g) || []).map(parseFloat); }
+  function moneyM(s) {
+    var m = L(s).replace(/,/g, "").match(/(\d+(\.\d+)?)\s*(million|mn|m|thousand|k)?\b/);
+    if (!m) return null;
+    var v = parseFloat(m[1]), u = m[3] || "";
+    if (/^(million|mn|m)$/.test(u)) return v;
+    if (/^(thousand|k)$/.test(u)) return v / 1000;
+    return v >= 1000 ? v / 1e6 : v;
+  }
+  function dates(s) { return (L(s).match(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b|\bmonth\s*\d+|\bq[1-4]\b|\b20\d\d\b|\bweek\s*\d+/g) || []).length; }
+  function words(s) { return (s || "").trim().split(/\s+/).filter(Boolean).length; }
+  function has(s, re) { return re.test(L(s)); }
+  function G(n) { return ["g", n]; } function A(n) { return ["a", n]; } function R(n) { return ["r", n]; }
+
+  // =================== Questions ===================
+  // q: question · h: example · g: guardrail (shown to the AI evaluator) · c: condition if amber · r: offline rule
+  var ASK = { id: "ask", title: "The ask", sub: "Tell us what you want to invest in.", qs: [
+    { id: "a1", q: "What is the investment, in one line?", h: "e.g. An AI tool that checks content claims before MLR review",
+      g: "Green: a clear one-line description. Amber: vague.", c: "Restate the investment in one clear line",
+      r: function (s) { return words(s) >= 6 ? G("Clear description") : A("Too short to understand"); } },
+    { id: "a2", q: "How much are you asking for in total?", h: "e.g. $1.5M over 12 months",
+      g: "Green: a total amount of [$0.1M] or more. Red: below [$0.1M] (normal budget, not governed). Amber: no amount.", c: "State the total amount",
+      r: function (s) { var m = moneyM(s); if (m === null) return A("No amount given"); return m < MIN_SIZE_M ? R("Below [$0.1M]: use the normal budget") : G("$" + m + "M"); } },
+    { id: "a3", q: "Who will use or pay for what this money buys?", h: "e.g. Pharma clients will pay a licence",
+      g: "Green: clients use or pay for it. Amber: our own teams use it (that is archetype 04, not this one).", c: "Confirm clients are the ones who use or pay",
+      r: function (s) { return has(s, /client|customer|pharma|brand|biotech/) ? G("Clients use or pay") : A("Sounds internal: check the archetype"); } }
+  ]};
+
+  var REAL = { id: "real", title: "Is it a real investment?", sub: "Quick facts about the money.", qs: [
+    { id: "b1", q: "Is any of this amount already in your approved budget for this year?", h: "All, part, or none",
+      g: "Green: none (new spend). Amber: part (only the extra is governed). Red: all of it (business as usual).", c: "Govern only the amount above the approved budget",
+      r: function (s) {
+        if (has(s, /part|some of|partly|half/)) return A("Part is already budgeted");
+        if (has(s, /\bnone\b|\bnot\b|\bno\b|new spend/)) return G("New spend");
+        if (has(s, /\ball\b|fully|entire|whole|yes/)) return R("Already budgeted: business as usual");
+        return A("Unclear"); } },
+    { id: "b2", q: "Is any part of this buying a company?", h: "Yes or no",
+      g: "Green: no. Red: yes (M&A is handled separately).", c: "",
+      r: function (s) { if (has(s, /\bno\b|\bnot\b/)) return G("Not M&A"); if (has(s, /\byes\b|acqui|buy(ing)? a company/)) return R("M&A is handled separately"); return A("Unclear"); } },
+    { id: "b3", q: "In which month does spending start, and in which month does it end?", h: "e.g. January 2027 to December 2027",
+      g: "Green: a start and an end. Red: no end (that is a running cost). Amber: only one date.", c: "Confirm the start and end month",
+      r: function (s) { if (has(s, /ongoing|no end|indefinite|open.ended|permanent/)) return R("No end date: a running cost"); var d = dates(s); return d >= 2 ? G("Start and end given") : A("Add an end date"); } },
+    { id: "b4", q: "Who is the one person accountable for results?", h: "One name or role",
+      g: "Green: one person. Amber: two names. Red: a committee or shared ownership.", c: "Name one accountable owner",
+      r: function (s) { if (has(s, /committee|jointly|shared|both/)) return R("No single owner"); if (has(s, /\band\b|\//)) return A("More than one name"); return G("One owner"); } },
+    { id: "b5", q: "Which costs are included in your number?", h: "People, tools and licences, cloud or AI usage, vendors, security and compliance, onboarding and support",
+      g: "Green: all relevant cost types listed. Amber: some missing. Red: hardly any listed.", c: "Add the missing cost lines before release",
+      r: function (s) {
+        var cats = { "people": /people|engineer|staff|hire|team|fte|headcount/, "tools": /tool|licen[cs]e|software/, "cloud/AI": /cloud|model|ai usage|hosting|compute|api/,
+          "vendors": /vendor|partner|contractor|agency/, "security": /security|privacy|compliance|legal|certif/, "support": /support|onboarding|training/ };
+        var miss = Object.keys(cats).filter(function (k) { return !cats[k].test(L(s)); });
+        var n = 6 - miss.length;
+        if (n >= 5) return G(n + " of 6 cost types listed");
+        if (n >= 3) return A("Missing: " + miss.join(", "));
+        return R("Most cost types missing"); } },
+    { id: "b6", q: "After the investment period, what will it cost each year to keep it running, and which budget pays?", h: "e.g. $0.27M a year, paid from BU A's operating budget",
+      g: "Green: an amount and who pays, or clearly self-funding from client work. Amber: amount without payer. Red: unknown.", c: "Agree which budget carries the running cost",
+      r: function (s) {
+        if (has(s, /don.t know|unknown|tbd|not sure/)) return R("Running cost unknown");
+        if (has(s, /paid by client|billable|client projects|self.fund/)) return G("Paid by client work");
+        if (nums(s).length && has(s, /budget|paid from|p&l|opex|operating|revenue/)) return G("Amount and payer given");
+        if (nums(s).length) return A("Which budget pays?");
+        return A("No running cost given"); } }
+  ]};
+
+  var ARCH = {
+    "02": {
+      name: "Client product, platform & reusable IP", short: "Client product & IP",
+      blurb: "Building, licensing or buying a product, platform or IP that clients will use or pay for.",
+      proof: "Clients willing to pay", first: "the prototype",
+      sections: [
+        { id: "p1", title: "Is the client problem real?", sub: "Who outside Indegene has this problem?", qs: [
+          { id: "p1a", q: "How many clients outside Indegene have told you they have this problem? Name them.", h: "e.g. Three: Client X, Client Y, Client Z",
+            g: "Green: 2 or more named external clients. Amber: 1. Red: none, or only Indegene teams.", c: "Get a second named client to confirm the problem",
+            r: function (s) { if (has(s, /only (our|indegene|internal)|internal team/)) return R("Only internal teams"); var n = maxNum(s); if (n === null) return A("No number given"); return n >= 2 ? G(n + " clients") : n === 1 ? A("Only 1 client") : R("No clients"); } },
+          { id: "p1b", q: "How far has your best design-partner client got?", h: "Verbal interest, letter of intent, or signed agreement",
+            g: "Green: signed agreement. Amber: letter of intent or MoU. Red: verbal only or none.", c: "Sign a design-partner agreement before the next instalment",
+            r: function (s) { if (has(s, /letter of intent|\bloi\b|\bmou\b/)) return A("Letter of intent only"); if (has(s, /not signed|unsigned/)) return A("Not yet signed"); if (has(s, /signed|contract/)) return G("Signed agreement"); if (has(s, /verbal|none|\bno\b/)) return R("Verbal only"); return A("Unclear"); } },
+          { id: "p1c", q: "Who at the client owns the budget for this?", h: "A job title",
+            g: "Green: a named role. Red: unknown.", c: "Identify the budget owner",
+            r: function (s) { if (has(s, /unknown|not sure|don.t know|tbd/)) return R("Budget owner unknown"); return words(s) >= 2 ? G("Budget owner named") : A("Unclear"); } },
+          { id: "p1d", q: "What do they spend on this problem today?", h: "e.g. About $1M a year",
+            g: "Green: an amount. Amber: unknown.", c: "Confirm what clients spend today",
+            r: function (s) { return nums(s).length ? G("Spend given") : A("Spend unknown"); } }
+        ]},
+        { id: "p2", title: "What can be reused?", sub: "How much already exists.", qs: [
+          { id: "p2a", q: "Which existing Indegene asset does this build on?", h: "e.g. Content SuperApp core, or none",
+            g: "Green: names an existing asset. Amber: none.", c: "Show which existing asset it builds on",
+            r: function (s) { return has(s, /\bnone\b|nothing|from scratch/) ? A("Built from scratch") : G("Builds on existing asset"); } },
+          { id: "p2b", q: "Roughly what share of the build already exists?", h: "e.g. 60%",
+            g: "Green: 30% or more. Amber: under 30% or unknown.", c: "Show the reusable share of the build",
+            r: function (s) { var p = pcts(s); if (!p.length) return A("No % given"); return p[0] >= 30 ? G(p[0] + "% exists") : A("Only " + p[0] + "% exists"); } },
+          { id: "p2c", q: "How many use cases or clients does that core already run?", h: "A number",
+            g: "Green: 1 or more. Amber: none.", c: "Prove the core in one use case before scaling",
+            r: function (s) { var n = maxNum(s); if (n === null || n === 0 || has(s, /\bnone\b/)) return A("Core not proven yet"); return G(n + " running"); } },
+          { id: "p2d", q: "How much custom work will each new client need?", h: "As a % of the build",
+            g: "Green: [20%] or less. Amber: over [20%]. Red: over 40%.", c: "Cap custom work per client at [20%], shown in the prototype",
+            r: function (s) { var p = pcts(s); if (!p.length) return A("No % given"); var v = p[0]; return v > 40 ? R(v + "%: every client is a rebuild") : v > 20 ? A(v + "%, above [20%]") : G(v + "%"); } }
+        ]},
+        { id: "p3", title: "Build, partner or buy?", sub: "Why build it ourselves?", qs: [
+          { id: "p3a", q: "Did you price at least one partner or vendor option?", h: "Yes or no",
+            g: "Green: yes. Amber: no.", c: "Price one partner or vendor option side by side",
+            r: function (s) { if (has(s, /\bno\b|\bnot\b/)) return A("No alternative priced"); return has(s, /yes|priced|compared/) ? G("Alternative priced") : A("Unclear"); } },
+          { id: "p3b", q: "For each option: what does it cost, and how many months to the first paying client?", h: "e.g. Build $1.5M, 8 months. Vendor $0.4M a year, 4 months",
+            g: "Green: cost and time for at least two options. Amber: incomplete.", c: "Add cost and time to first client for each option",
+            r: function (s) { return nums(s).length >= 2 ? G("Options compared") : A("Comparison incomplete"); } },
+          { id: "p3c", q: "If we build, do we own the code, the data rights and the IP?", h: "Yes or no for each",
+            g: "Green: yes to all. Amber: any no or partial.", c: "Secure code, data and IP rights",
+            r: function (s) { if (has(s, /\bno\b|\bnot\b|partly|partial/)) return A("Not full ownership"); return has(s, /yes|own/) ? G("We own it") : A("Unclear"); } },
+          { id: "p3d", q: "In one sentence, why is ours different?", h: "What no competitor or vendor has",
+            g: "Green: a specific reason. Red: blank or generic.", c: "",
+            r: function (s) { return words(s) >= 6 ? G("Clear difference") : R("No clear difference"); } }
+        ]},
+        { id: "p4", title: "Is the plan realistic?", sub: "Dates, team and full cost.", qs: [
+          { id: "p4a", q: "What are the dates for the prototype, the first paid pilot and scale?", h: "e.g. March, August, December 2027",
+            g: "Green: three dates. Amber: one or two. Red: none.", c: "Fix dates for prototype, paid pilot and scale",
+            r: function (s) { var d = dates(s); return d >= 3 ? G("Milestones dated") : d >= 1 ? A("Some dates missing") : R("No dates"); } },
+          { id: "p4b", q: "Is the build team in place, or still to be hired?", h: "In place, partly, or to be hired",
+            g: "Green: in place. Amber: partly or to be hired.", c: "Name the build team before the first instalment is spent",
+            r: function (s) { if (has(s, /partly|partial|some|to be hired|hire|recruit/)) return A("Team not fully in place"); return has(s, /in place|existing|already|yes/) ? G("Team in place") : A("Unclear"); } },
+          { id: "p4c", q: "Does the plan include a security review and approval to use client data?", h: "Yes or no",
+            g: "Green: yes, both. Red: no.", c: "",
+            r: function (s) { if (has(s, /\bno\b|\bnot\b/)) return R("Security or data approval missing"); return has(s, /yes|included|in the plan/) ? G("Included") : A("Unclear"); } }
+        ]},
+        { id: "p5", title: "Will clients pay?", sub: "Price, pilots and margin.", qs: [
+          { id: "p5a", q: "How will clients pay?", h: "Licence, per use, per asset, or not decided",
+            g: "Green: a price model. Red: not decided.", c: "",
+            r: function (s) { if (has(s, /not decided|tbd|unsure|don.t know|undecided/)) return R("Price model not decided"); return has(s, /licen|subscri|per |fee|price/) ? G("Price model set") : A("Unclear"); } },
+          { id: "p5b", q: "Will pilots be paid, and at what price?", h: "e.g. Yes, $60k for 3 months",
+            g: "Green: paid pilots with a price. Amber: free pilots.", c: "Make pilots paid, with a path to a contract",
+            r: function (s) { if (has(s, /free|unpaid|\bno\b/)) return A("Free pilots"); return has(s, /paid|\$|yes/) ? G("Paid pilots") : A("Unclear"); } },
+          { id: "p5c", q: "What turns a pilot into a paid contract?", h: "The trigger, e.g. a result the client must see",
+            g: "Green: a clear trigger. Amber: blank or vague.", c: "Define the pilot-to-paid trigger",
+            r: function (s) { return words(s) >= 6 ? G("Trigger defined") : A("Trigger vague"); } },
+          { id: "p5d", q: "What does it cost to serve one client for a year?", h: "e.g. $90k",
+            g: "Green: an amount. Amber: unknown.", c: "Confirm cost to serve per client",
+            r: function (s) { return nums(s).length ? G("Cost to serve given") : A("Cost to serve unknown"); } },
+          { id: "p5e", q: "What are revenue and margin with [3] clients?", h: "e.g. $0.9M a year, 70% margin",
+            g: "Green: revenue and margin. Amber: one of them missing.", c: "Model revenue and margin at [3] clients",
+            r: function (s) { return nums(s).length && has(s, /%|margin/) ? G("Revenue and margin given") : A("Margin missing"); } }
+        ]}
+      ]
+    },
+    "03": {
+      name: "New delivery capability & capacity", short: "New delivery capability",
+      blurb: "Setting up the people, skills and methods to deliver a service we don’t offer today.",
+      proof: "Named work to keep them busy", first: "the first named project’s team",
+      sections: [
+        { id: "d1", title: "Which new offering does it enable?", sub: "The service and the work waiting for it.", qs: [
+          { id: "d1a", q: "Do we sell this service today?", h: "Yes or no",
+            g: "Green: no (new service). Red: yes (hiring for existing services follows the normal hiring process).", c: "",
+            r: function (s) { if (has(s, /\bno\b|\bnot\b|don.t|do not|new/)) return G("New service"); if (has(s, /yes|already|we do/)) return R("Existing service: normal hiring"); return A("Unclear"); } },
+          { id: "d1b", q: "Which named client projects or deals need it, and how far along is each?", h: "e.g. Client X: SOW signed. Client Y: in CRM pipeline",
+            g: "Green: signed SOWs or deals. Amber: some only in pipeline. Red: no named work.", c: "Convert pipeline deals to signed SOWs before full hiring",
+            r: function (s) { var sg = has(s, /\bsow\b|signed|contract|won/), pp = has(s, /pipeline|crm|proposal|verbal|prospect|discussion/);
+              if (sg && pp) return A("One signed, rest in pipeline"); if (sg) return G("Signed work"); if (pp) return A("Pipeline only"); if (has(s, /none|no named/)) return R("No named work"); return A("Unclear"); } },
+          { id: "d1c", q: "Which roles do you need, how many people, and from when?", h: "e.g. 12 people: 1 lead, 2 clinicians, 9 coordinators, from February",
+            g: "Green: roles, headcount and dates. Amber: incomplete.", c: "Confirm roles, headcount and start dates",
+            r: function (s) { return nums(s).length ? G("Roles and headcount given") : A("No headcount"); } },
+          { id: "d1d", q: "How many months of work do those named deals cover?", h: "A number of months",
+            g: "Green: more than 6. Amber: 3 to 6. Red: under 3.", c: "Secure at least 6 months of named work",
+            r: function (s) { var n = maxNum(s); if (n === null) return A("Not given"); return n > 6 ? G(n + " months of work") : n >= 3 ? A("Only " + n + " months") : R("Under 3 months of work"); } }
+        ]},
+        { id: "d2", title: "Who can we move, and who covers?", sub: "Use our own people first.", qs: [
+          { id: "d2a", q: "How many of the roles can be filled by people already at Indegene?", h: "A number",
+            g: "Green: a number (even zero, if explained). Amber: not checked.", c: "Check who can move internally before hiring",
+            r: function (s) { return nums(s).length ? G("Internal moves checked") : A("Not checked"); } },
+          { id: "d2b", q: "Who covers their current work, and at what cost?", h: "e.g. 2 contractors at $8k a month",
+            g: "Green: a cover plan with cost. Amber: no plan.", c: "Agree who covers the moved people’s work",
+            r: function (s) { if (has(s, /no plan|\bnone\b|not yet|tbd/)) return A("No cover plan"); return words(s) >= 4 ? G("Cover plan given") : A("Unclear"); } },
+          { id: "d2c", q: "Have their current managers agreed?", h: "Yes or no",
+            g: "Green: yes. Amber: not yet.", c: "Get current managers’ agreement",
+            r: function (s) { if (has(s, /not yet|\bno\b|pending|progress|discuss/)) return A("Managers not agreed yet"); return has(s, /yes|agreed/) ? G("Managers agreed") : A("Unclear"); } }
+        ]},
+        { id: "d3", title: "What do we hire or buy in?", sub: "New people and outside help.", qs: [
+          { id: "d3a", q: "How many external hires, and what does each cost per year?", h: "e.g. 8 hires at about $55k each",
+            g: "Green: number and cost. Amber: missing.", c: "Confirm number of hires and cost",
+            r: function (s) { return nums(s).length ? G("Hires and cost given") : A("Not given"); } },
+          { id: "d3b", q: "Any contractors, partners, tools or certifications to buy?", h: "List them with cost, or say none",
+            g: "Green: listed or none. Amber: blank.", c: "List outside costs",
+            r: function (s) { return words(s) >= 1 ? G("Outside costs stated") : A("Not stated"); } },
+          { id: "d3c", q: "How many weeks will hiring take?", h: "A number of weeks",
+            g: "Green: given and before the first deal starts. Red: hiring ends after the first deal starts.", c: "Align hiring time with the first deal’s start",
+            r: function (s) { return nums(s).length ? G("Hiring time given") : A("Not given"); } }
+        ]},
+        { id: "d4", title: "When can it deliver?", sub: "From set-up to billable work.", qs: [
+          { id: "d4a", q: "When does the first billable work start?", h: "A month",
+            g: "Green: a date. Amber: unknown.", c: "Fix the first billable date",
+            r: function (s) { return dates(s) || nums(s).length ? G("Date given") : A("No date"); } },
+          { id: "d4b", q: "What has to be in place before then?", h: "e.g. Training, certification, tools, client access",
+            g: "Green: listed. Amber: blank.", c: "List what must be ready before delivery",
+            r: function (s) { return words(s) >= 3 ? G("Prerequisites listed") : A("Not listed"); } },
+          { id: "d4c", q: "What share of the team’s time will be billable in months 1–3, and in months 4–6?", h: "e.g. 40%, then 75%",
+            g: "Green: 50% or more by months 4–6. Amber: below 50%.", c: "Reach [50%]+ billable by months 4–6, or phase the hiring",
+            r: function (s) { var p = pcts(s); if (!p.length) return A("Not given"); var v = p[p.length - 1]; return v >= 50 ? G(v + "% billable by months 4–6") : A("Only " + v + "% billable"); } }
+        ]},
+        { id: "d5", title: "When does it break even?", sub: "Cost against named revenue.", qs: [
+          { id: "d5a", q: "What does the full team cost per month?", h: "e.g. $95k a month",
+            g: "Green: an amount. Amber: unknown.", c: "Confirm monthly team cost",
+            r: function (s) { return nums(s).length ? G("Monthly cost given") : A("Not given"); } },
+          { id: "d5b", q: "What revenue does the named work bring in each month?", h: "e.g. $70k a month from March",
+            g: "Green: an amount by month. Amber: unknown.", c: "Confirm monthly revenue from named work",
+            r: function (s) { return nums(s).length ? G("Monthly revenue given") : A("Not given"); } },
+          { id: "d5c", q: "In which month does total revenue catch up with total cost?", h: "e.g. Month 14",
+            g: "Green: within [24 months]. Red: later.", c: "Show the break-even month",
+            r: function (s) { var n = maxNum(s); if (n === null) return A("Not given"); return n > HURDLE_MONTHS ? R("Month " + n + ": beyond [24]") : G("Month " + n); } },
+          { id: "d5d", q: "If the second deal doesn’t come, how many months does the team stay busy?", h: "A number of months",
+            g: "Green: 3 or more. Amber: under 3.", c: "Line up the next deal to keep the team busy",
+            r: function (s) { var n = maxNum(s); if (n === null) return A("Not given"); return n >= 3 ? G(n + " months") : A("Under 3 months"); } }
+        ]}
+      ]
+    }
+  };
+
+  var RET = { id: "ret", title: "Is the return worth it?", sub: "Finance will check these numbers against the baseline.", qs: [
+    { id: "r1", q: "What revenue or savings do you expect in years 1, 2 and 3?", h: "e.g. Year 1: $0.15M, Year 2: $1.2M, Year 3: $2.1M",
+      g: "Green: figures for each year. Amber: incomplete.", c: "Add year-by-year revenue",
+      r: function (s) { return nums(s).length >= 2 ? G("Year-by-year given") : A("Incomplete"); } },
+    { id: "r2", q: "What is the total cost in years 1, 2 and 3, including running cost?", h: "e.g. Year 1: $1.5M, Year 2: $0.4M, Year 3: $0.5M",
+      g: "Green: figures for each year. Amber: incomplete.", c: "Add year-by-year cost",
+      r: function (s) { return nums(s).length >= 2 ? G("Year-by-year given") : A("Incomplete"); } },
+    { id: "r3", q: "Which single assumption, if wrong, hurts the return most?", h: "e.g. That pilots convert to paid licences",
+      g: "Green: one named assumption. Amber: blank.", c: "Track the key assumption at each checkpoint",
+      r: function (s) { return words(s) >= 4 ? G("Key assumption named") : A("Not named"); } },
+    { id: "r4", q: "If only half the clients or deals come, what happens to payback?", h: "e.g. Payback moves from 20 to 34 months",
+      g: "Green: a downside within [36 months]. Amber: vague. Red: never pays back.", c: "Add a downside case",
+      r: function (s) { if (has(s, /never|no payback|loss/)) return R("Downside never pays back"); var n = maxNum(s); if (n !== null && n > 36 && has(s, /month/)) return R("Downside beyond [36 months]"); return words(s) >= 5 ? G("Downside stated") : A("Downside vague"); } }
+  ]};
+
+  // Sample answers to rehearse the demo
+  var SAMPLES = {
+    "02": {
+      a1: "ClaimCheck: an AI tool that checks every claim in promotional content against approved references before it goes to the client's MLR review.",
+      a2: "$1.5M over 12 months", a3: "Pharma clients will pay an annual licence to use it.",
+      b1: "None of it. This is new spend, not in this year's budget.", b2: "No.", b3: "Starts January 2027, ends December 2027.", b4: "BU A product lead.",
+      b5: "People (6 engineers), tools and licences, AI model usage and cloud hosting, security and privacy review, client onboarding and support. Contingency included.",
+      b6: "About $0.27M a year (support, hosting, model usage), paid from BU A's operating budget and covered by licence revenue.",
+      p1a: "Three: two large pharma clients and one mid-size biotech described it in their quarterly reviews.",
+      p1b: "One has signed a letter of intent; the agreement is with their legal team.",
+      p1c: "Head of MLR operations at each client.", p1d: "About $1.1M a year each on extra MLR review cycles.",
+      p2a: "Content SuperApp core.", p2b: "About 60% of the build already exists.", p2c: "Two use cases already run on it.",
+      p2d: "About 25% custom work per client in the first year.",
+      p3a: "Yes, we priced one vendor licence.", p3b: "Build: $1.5M once, first client in 8 months. Vendor: $0.4M every year, first client in 4 months.",
+      p3c: "Yes, we own the code, data rights and IP if we build.", p3d: "It uses our own MLR reference library, which no vendor has.",
+      p4a: "Prototype March 2027, first paid pilot August 2027, scale December 2027.",
+      p4b: "Partly: 4 of 6 engineers are in place, 2 to be hired.", p4c: "Yes, both are in the plan and the budget.",
+      p5a: "Annual licence per client.", p5b: "Yes, paid pilots at $60k for 3 months, credited to the licence.",
+      p5c: "If the pilot cuts MLR review cycles by 20% or more, the client converts to the annual licence.",
+      p5d: "About $90k per client per year.", p5e: "$0.9M revenue a year at 3 clients, about 70% margin.",
+      r1: "Year 1: $0.15M, Year 2: $1.2M, Year 3: $2.1M.", r2: "Year 1: $1.5M, Year 2: $0.4M, Year 3: $0.5M.",
+      r3: "That pilots convert to paid licences.", r4: "With half the clients, payback moves from about 20 months to about 34 months."
+    },
+    "03": {
+      a1: "Set up a team to run patient-support program operations for pharma clients, a service we don't offer today.",
+      a2: "$0.9M over 9 months", a3: "Pharma clients will buy the new service; the new team delivers it.",
+      b1: "None. Not in this year's budget.", b2: "No.", b3: "From February 2027 to October 2027.", b4: "BU A delivery head.",
+      b5: "People (hires and moved staff), tools and licences, a vendor for call-centre tooling, compliance review and certification, onboarding and training.",
+      b6: "Nothing extra after 9 months: the team is then paid by client projects.",
+      d1a: "No, we don't sell this today.", d1b: "Client X: SOW signed, starts March. Client Y: in CRM pipeline at proposal stage.",
+      d1c: "12 people: 1 lead, 2 clinicians, 9 coordinators, starting February to April 2027.", d1d: "About 9 months of named work.",
+      d2a: "4 of the 12 can move from our existing operations team.", d2b: "Their current work will be covered by 2 contractors at $8k a month.",
+      d2c: "Not yet; discussions are in progress.",
+      d3a: "8 external hires at about $55k a year each.", d3b: "Certification in patient-safety reporting, about $20k.", d3c: "6 to 8 weeks.",
+      d4a: "March 2027.", d4b: "Training, safety-reporting certification and access to the client's systems.", d4c: "40% in months 1 to 3, 75% in months 4 to 6.",
+      d5a: "About $95k a month at full size.", d5b: "$70k a month from March, $140k a month from June if Client Y signs.", d5c: "Month 14.",
+      d5d: "About 6 months on Client X alone.",
+      r1: "Year 1: $1.1M, Year 2: $1.7M, Year 3: $1.8M.", r2: "Year 1: $1.0M, Year 2: $1.2M, Year 3: $1.25M.",
+      r3: "That Client Y signs by June.", r4: "Without Client Y, break-even moves from month 14 to about month 22."
+    }
+  };
+
+  // =================== State ===================
+  var KEY = "igsim.v1";
+  var state = { screen: "start", arch: null, step: 0, answers: {} };
+  var audio = {};     // id -> object URL (kept for this session only)
+  var result = null;  // last evaluation
+  try { var saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved && saved.answers) { state.arch = saved.arch; state.answers = saved.answers; } } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify({ arch: state.arch, answers: state.answers })); } catch (e) {} }
+
+  function sections() { return state.arch ? [ASK, REAL].concat(ARCH[state.arch].sections, [RET]) : []; }
+  function allQs() { var out = []; sections().forEach(function (s) { s.qs.forEach(function (q) { out.push({ sec: s, q: q }); }); }); return out; }
+
+  // =================== Claude runtime (only when published as an Artifact) ===================
+  var dictation = null, sampler = null;
+  if (window.claude && typeof window.claude.use === "function") {
+    window.claude.use("dictation").then(function (d) { if (d) { dictation = d; wireDictation(); } }).catch(function () {});
+    window.claude.use("sample").then(function (s) { if (s) sampler = s; }).catch(function () {});
+  }
+
+  // =================== Voice ===================
+  var MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+  var STOP = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/></svg>';
+  var active = null; // { id, rec, sr, stream }
+
+  function appendText(id, text) {
+    var ta = document.getElementById("ta-" + id); if (!ta || !text) return;
+    ta.value = (ta.value.trim() ? ta.value.trim() + " " : "") + text.trim();
+    state.answers[id] = ta.value; save(); grow(ta);
+  }
+  function setLive(id, msg) { var el = document.getElementById("live-" + id); if (el) el.textContent = msg || ""; }
+  function setMicBtn(id, on) {
+    var b = document.querySelector('.mic[data-id="' + id + '"]'); if (!b) return;
+    b.classList.toggle("on", on); b.innerHTML = on ? STOP : MIC;
+    b.setAttribute("aria-label", on ? "Stop recording" : "Record answer");
+  }
+
+  function wireDictation() {
+    dictation.onPartial(function (e) { if (active) setLive(active.id, "Hearing: " + e.text); });
+    dictation.onFinal(function (e) { if (active) { appendText(active.id, e.text); setLive(active.id, ""); } });
+    dictation.onState(function (e) {
+      if (e.state === "idle" && active) { setMicBtn(active.id, false); setLive(active.id, ""); active = null; }
+    });
+  }
+
+  function toggleMic(id) {
+    // Published on claude.ai: speech goes straight to text
+    if (dictation) {
+      if (active) { var was = active.id; dictation.stop().catch(function () {}); if (was === id) return; }
+      active = { id: id }; setMicBtn(id, true); setLive(id, "Listening…");
+      dictation.start().catch(function (err) {
+        setMicBtn(id, false); active = null;
+        setLive(id, err && err.code === "not_granted" ? "Microphone not allowed. Please type your answer." : "Couldn’t start the microphone. Please type.");
+      });
+      return;
+    }
+    // Opened as a file: record audio, and transcribe where the browser can
+    if (active) { var prev = active.id; stopRecording(); if (prev === id) return; }
+    if (!navigator.mediaDevices || !window.MediaRecorder) { setLive(id, "Recording isn’t available in this browser. Please type."); return; }
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+      var chunks = [], rec = new MediaRecorder(stream);
+      rec.ondataavailable = function (e) { if (e.data.size) chunks.push(e.data); };
+      rec.onstop = function () {
+        stream.getTracks().forEach(function (t) { t.stop(); });
+        if (!chunks.length) return;
+        if (audio[id]) URL.revokeObjectURL(audio[id]);
+        audio[id] = URL.createObjectURL(new Blob(chunks, { type: rec.mimeType || "audio/webm" }));
+        var slot = document.getElementById("au-" + id); if (slot) slot.innerHTML = '<audio controls src="' + audio[id] + '"></audio>';
+      };
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition, sr = null;
+      if (SR) {
+        try {
+          sr = new SR(); sr.lang = "en-IN"; sr.continuous = true; sr.interimResults = true;
+          sr.onresult = function (ev) {
+            var interim = "";
+            for (var i = ev.resultIndex; i < ev.results.length; i++) {
+              if (ev.results[i].isFinal) appendText(id, ev.results[i][0].transcript); else interim += ev.results[i][0].transcript;
+            }
+            setLive(id, interim ? "Hearing: " + interim : "Listening…");
+          };
+          sr.onerror = function () { setLive(id, "Recording audio. Live transcription isn’t available here, so please also type a short summary."); };
+          sr.start();
+        } catch (e) { sr = null; }
+      }
+      rec.start();
+      active = { id: id, rec: rec, sr: sr, stream: stream };
+      setMicBtn(id, true);
+      setLive(id, sr ? "Listening…" : "Recording audio. Please also type a short summary so it can be evaluated.");
+    }).catch(function () { setLive(id, "Microphone not allowed. Please type your answer."); });
+  }
+  function stopRecording() {
+    if (!active) return;
+    var a = active; active = null;
+    try { if (a.sr) a.sr.stop(); } catch (e) {}
+    try { if (a.rec && a.rec.state !== "inactive") a.rec.stop(); } catch (e) {}
+    setMicBtn(a.id, false); setLive(a.id, "");
+  }
+  function stopAnyVoice() { if (dictation && active) { dictation.stop().catch(function () {}); } else stopRecording(); }
+
+  // =================== Rendering ===================
+  var app = document.getElementById("app");
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function grow(ta) { ta.style.height = "auto"; ta.style.height = Math.max(52, ta.scrollHeight + 2) + "px"; }
+
+  function setHeader() {
+    var ct = document.getElementById("chipType"), cs = document.getElementById("chipStep"), bar = document.getElementById("bar");
+    var n = sections().length;
+    ct.hidden = !state.arch || state.screen === "start"; if (state.arch) ct.textContent = "Archetype " + state.arch + " · " + ARCH[state.arch].short;
+    cs.hidden = state.screen === "start";
+    if (state.screen === "section") { cs.textContent = "Section " + (state.step + 1) + " of " + n; bar.style.width = ((state.step + 1) / (n + 2) * 100) + "%"; }
+    else if (state.screen === "review") { cs.textContent = "Review"; bar.style.width = ((n + 1) / (n + 2) * 100) + "%"; }
+    else if (state.screen === "eval") { cs.textContent = "Evaluation"; bar.style.width = "100%"; }
+    else bar.style.width = "0";
+  }
+
+  function render() {
+    setHeader();
+    if (state.screen === "start") renderStart();
+    else if (state.screen === "section") renderSection();
+    else if (state.screen === "review") renderReview();
+    else renderEval();
+    window.scrollTo(0, 0);
+  }
+
+  function renderStart() {
+    var anyAnswers = Object.keys(state.answers).some(function (k) { return (state.answers[k] || "").trim(); });
+    app.innerHTML =
+      '<div class="card">' +
+      '<div class="eyebrow">You are the BU owner</div>' +
+      '<h1>Ask for an investment</h1>' +
+      '<p class="lead">Answer a few short questions, section by section. Type, or tap the microphone and speak. At the end, review your answers and see how the investment governance process would decide.</p>' +
+      '<h2 style="margin-top:22px">What kind of investment is it?</h2>' +
+      '<div class="types">' +
+      ["02", "03"].map(function (k) {
+        return '<button class="type' + (state.arch === k ? " sel" : "") + '" data-arch="' + k + '"><div class="n">' + k + '</div><b>' + ARCH[k].name + '</b><span>' + ARCH[k].blurb + '</span><br><span><b style="display:inline;font-size:14px">Proof:</b> ' + ARCH[k].proof + '</span></button>';
+      }).join("") +
+      '</div>' +
+      '<ol class="steps"><li>Answer each section</li><li>Review all your answers on one page</li><li>Evaluate against the guardrails and get a one-page summary</li></ol>' +
+      '<div class="nav"><div>' + (state.arch ? '<button class="btn link" id="sample">Fill with sample answers</button>' : "") +
+      (anyAnswers ? ' &nbsp; <button class="btn link" id="clear">Clear answers</button>' : "") + '</div>' +
+      '<button class="btn primary" id="begin"' + (state.arch ? "" : " disabled") + '>' + (anyAnswers ? "Continue" : "Start") + ' →</button></div>' +
+      '</div>';
+  }
+
+  function renderSection() {
+    var secs = sections(), s = secs[state.step];
+    app.innerHTML =
+      '<div class="card">' +
+      '<div class="eyebrow">Section ' + (state.step + 1) + ' of ' + secs.length + '</div>' +
+      '<h1>' + esc(s.title) + '</h1><p class="lead">' + esc(s.sub) + '</p>' +
+      s.qs.map(function (q) {
+        return '<div class="q"><label for="ta-' + q.id + '">' + esc(q.q) + '</label><div class="hint">' + esc(q.h) + '</div>' +
+          '<div class="answer"><textarea id="ta-' + q.id + '" data-id="' + q.id + '" rows="2" placeholder="Type your answer, or tap the mic">' + esc(state.answers[q.id] || "") + '</textarea>' +
+          '<button class="mic" data-id="' + q.id + '" aria-label="Record answer" title="Speak your answer">' + MIC + '</button></div>' +
+          '<div class="live" id="live-' + q.id + '"></div>' +
+          '<div id="au-' + q.id + '">' + (audio[q.id] ? '<audio controls src="' + audio[q.id] + '"></audio>' : "") + '</div></div>';
+      }).join("") +
+      '</div>' +
+      '<div class="nav"><button class="btn" id="prev">← Back</button>' +
+      '<button class="btn primary" id="next">' + (state.step === secs.length - 1 ? "Review answers →" : "Next →") + '</button></div>';
+    app.querySelectorAll("textarea").forEach(grow);
+    var first = app.querySelector("textarea"); if (first && !first.value) first.focus();
+  }
+
+  function renderReview() {
+    var missing = 0;
+    var html = sections().map(function (s, i) {
+      return '<div class="rsec"><div class="rsec-head"><h2 style="margin:0">' + (i + 1) + '. ' + esc(s.title) + '</h2><button class="btn link" data-edit="' + i + '">Edit</button></div>' +
+        s.qs.map(function (q) {
+          var a = (state.answers[q.id] || "").trim(); if (!a && !audio[q.id]) missing++;
+          return '<div class="rq"><div class="qq">' + esc(q.q) + '</div>' +
+            (a ? '<div class="aa">' + esc(a) + '</div>' : '<div class="aa none">' + (audio[q.id] ? "Audio only, not transcribed" : "Not answered") + '</div>') +
+            (audio[q.id] ? '<audio controls src="' + audio[q.id] + '"></audio>' : "") + '</div>';
+        }).join("") + '</div>';
+    }).join("");
+    app.innerHTML =
+      '<div class="card"><div class="eyebrow">Review</div><h1>Your answers</h1>' +
+      '<p class="lead">Check everything once. Use Edit to change a section.</p>' + html +
+      (missing ? '<div class="notice">' + missing + ' question' + (missing > 1 ? "s are" : " is") + ' not answered. Unanswered questions count against the request.</div>' : "") +
+      '</div>' +
+      '<div class="nav"><button class="btn" id="prev">← Back</button><button class="btn primary" id="evaluate">Evaluate →</button></div>';
+  }
+
+  // =================== Evaluation ===================
+  var DEC = {
+    "Approve": "d-g", "Approve in parts": "d-a", "Send back": "d-a", "Decline": "d-r", "Not governed here": "d-n"
+  };
+  var NOT_GOVERNED = {
+    a2: "Below [$0.1M]: use the BU’s normal budget process.",
+    b1: "Already in the approved budget: this is business as usual.",
+    b2: "M&A is handled separately.",
+    d1a: "Hiring for an existing service follows the normal hiring process."
+  };
+
+  function offlineRatings() {
+    return allQs().map(function (x) {
+      var a = (state.answers[x.q.id] || "").trim();
+      var r = a ? x.q.r(a) : (audio[x.q.id] ? A("Audio only, not transcribed") : R("Not answered"));
+      return { id: x.q.id, sec: x.sec, q: x.q, answer: a, rag: r[0], note: r[1], condition: r[0] === "a" ? x.q.c : "" };
+    });
+  }
+
+  function aiRatings() {
+    var items = allQs().map(function (x) {
+      return { id: x.q.id, section: x.sec.title, question: x.q.q, guardrail: x.q.g, conditionIfAmber: x.q.c, answer: (state.answers[x.q.id] || "").trim() };
+    });
+    var prompt =
+      "You are the Strategy & Operations investment-governance evaluator. A BU owner has answered questions about an investment request " +
+      "(archetype " + state.arch + ": " + ARCH[state.arch].name + "; proof required: " + ARCH[state.arch].proof + ").\n" +
+      "Grade EACH answer strictly against its guardrail: g = meets it, a = partly meets it and can be fixed with a condition, r = fails, is missing, or is too vague to check. " +
+      "An empty answer is r. Values in [ ] are indicative thresholds; apply them as written. Do not invent facts.\n" +
+      "For each item give a note of at most 12 words quoting the answer's facts, and for every 'a' a condition of at most 14 words (adapt conditionIfAmber to the answer).\n" +
+      "Also give: summary (two plain sentences for the Steering Committee: what is strong, what is the main risk), and paybackEstimate (one short line estimated from the year-by-year revenue and cost answers, or 'Not enough data').\n" +
+      'Return JSON only: {"items":[{"id":"","rag":"g|a|r","note":"","condition":""}],"summary":"","paybackEstimate":""}\n\nItems:\n' +
+      JSON.stringify(items);
+    return sampler.json(prompt, { modelTier: "default" }).then(function (v) {
+      if (!v || !Array.isArray(v.items)) throw new Error("bad shape");
+      var byId = {}; v.items.forEach(function (it) { byId[it.id] = it; });
+      var base = offlineRatings();
+      var rows = base.map(function (b) {
+        var it = byId[b.id];
+        if (!it || !/^[gar]$/.test(it.rag)) return b;
+        return { id: b.id, sec: b.sec, q: b.q, answer: b.answer, rag: it.rag, note: it.note || b.note, condition: it.rag === "a" ? (it.condition || b.q.c) : "" };
+      });
+      return { rows: rows, summary: v.summary || "", payback: v.paybackEstimate || "", mode: "AI-assisted evaluation against the guardrails" };
+    });
+  }
+
+  function worst(list) { return list.some(function (r) { return r.rag === "r"; }) ? "r" : list.some(function (r) { return r.rag === "a"; }) ? "a" : "g"; }
+
+  function decide(ev) {
+    var rows = ev.rows;
+    var arch = ARCH[state.arch];
+    var archIds = arch.sections.map(function (s) { return s.id; });
+    var c1 = rows.filter(function (r) { return r.sec.id === "ask" || r.sec.id === "real"; });
+    var c2 = rows.filter(function (r) { return archIds.indexOf(r.sec.id) > -1; });
+    var c3 = rows.filter(function (r) { return r.sec.id === "ret" || r.id === "p5e" || r.id === "d5c"; });
+    var reds = rows.filter(function (r) { return r.rag === "r"; });
+    var ambers = rows.filter(function (r) { return r.rag === "a"; });
+    var ng = reds.filter(function (r) { return NOT_GOVERNED[r.id]; });
+    var proofReds = c2.filter(function (r) { return r.rag === "r"; }).length;
+    var amount = moneyM(state.answers.a2);
+
+    var d, why, next;
+    if (ng.length) {
+      d = "Not governed here"; why = NOT_GOVERNED[ng[0].id];
+      next = "Route the request to the right process. It does not go to the Review Forum.";
+    } else if (proofReds >= 4) {
+      d = "Decline"; why = "The proof is missing on " + proofReds + " points. The request is not ready to fund.";
+      next = "Review Forum recommends Decline. The Steering Committee confirms.";
+    } else if (reds.length) {
+      d = "Send back"; why = reds.length + " answer" + (reds.length > 1 ? "s fail" : " fails") + " the guardrails. Fix " + (reds.length > 1 ? "them" : "it") + " and resubmit.";
+      next = "Back to the BU owner. Resubmit to the Review Forum once the gaps are fixed.";
+    } else if (ambers.length) {
+      d = "Approve in parts"; why = "The case holds, but " + ambers.length + " point" + (ambers.length > 1 ? "s need" : " needs") + " proof. Release money in instalments, tied to conditions.";
+      next = "Release only " + arch.first + ". Hold the rest until the conditions are met at the checkpoints.";
+    } else {
+      d = "Approve"; why = "Every answer meets the guardrails.";
+      next = "Release the first instalment. Later instalments follow the checkpoints.";
+    }
+    var route = (d === "Not governed here" || d === "Send back") ? "" :
+      "Review Forum reviews and recommends · Steering Committee decides" +
+      (amount !== null ? (amount <= WRITTEN_LIMIT_M ? " · by written reply within [5] working days (under [$0.5M])" : " · in a meeting (over [$0.5M])") : "") +
+      " · BU owner presents but does not vote.";
+    function line(list) {
+      var r = list.filter(function (x) { return x.rag === "r"; }).length, a = list.filter(function (x) { return x.rag === "a"; }).length;
+      return r ? r + " gap" + (r > 1 ? "s" : "") + (a ? ", " + a + " to condition" : "") : a ? a + " point" + (a > 1 ? "s" : "") + " to condition" : "Meets the guardrails";
+    }
+    return {
+      decision: d, why: why, next: next, route: route,
+      checks: [
+        { t: "Check 1 · Real investment?", rag: worst(c1), line: line(c1) },
+        { t: "Check 2 · Proof good enough?", rag: worst(c2), line: line(c2) },
+        { t: "Check 3 · Return worth it?", rag: worst(c3), line: line(c3) }
+      ],
+      reds: reds, ambers: ambers
+    };
+  }
+
+  function evaluate() {
+    stopAnyVoice();
+    state.screen = "eval"; setHeader();
+    app.innerHTML = '<div class="card loading">Evaluating against the guardrails…</div>';
+    var p = sampler ? aiRatings().catch(function () { return null; }) : Promise.resolve(null);
+    p.then(function (ev) {
+      if (!ev) ev = { rows: offlineRatings(), summary: "", payback: "", mode: "Rule-based evaluation against the guardrails" + (sampler ? " (AI evaluation was unavailable)" : "") };
+      ev.d = decide(ev); result = ev; renderEval();
+    });
+  }
+
+  function renderEval() {
+    if (!result) { state.screen = "review"; render(); return; }
+    var ev = result, d = ev.d, arch = ARCH[state.arch];
+    var name = (state.answers.a1 || "Investment request").trim();
+    var amount = moneyM(state.answers.a2);
+    var owner = (state.answers.b4 || "").trim().replace(/\.$/, "");
+    var today = new Date().toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+    var autoSummary = ev.summary ||
+      ("Strongest areas: " + (sections().filter(function (s) { return ev.rows.filter(function (r) { return r.sec.id === s.id; }).every(function (r) { return r.rag === "g"; }); }).map(function (s) { return s.title.replace(/\?$/, ""); }).join("; ") || "none fully green") + ". " +
+       (d.reds.length ? "Main gaps: " + d.reds.slice(0, 3).map(function (r) { return r.note.toLowerCase(); }).join("; ") + "." :
+        d.ambers.length ? "Main open points: " + d.ambers.slice(0, 3).map(function (r) { return r.note.toLowerCase(); }).join("; ") + "." : "No open points."));
+
+    function list(items, empty, field) {
+      return items.length ? "<ol>" + items.map(function (r) { return "<li>" + esc(field === "c" ? (r.condition || r.q.c) : r.note) + ' <span class="muted">(' + esc(r.sec.title.replace(/\?$/, "")) + ")</span></li>"; }).join("") + "</ol>" : '<div class="none">' + empty + "</div>";
+    }
+
+    app.innerHTML =
+      '<div class="card">' +
+      '<div class="ev-top"><div><div class="eyebrow">Evaluation summary</div><h1 style="margin-bottom:0">' + esc(name.length > 110 ? name.slice(0, 107) + "…" : name) + '</h1>' +
+      '<div class="meta"><span class="chip">Archetype ' + state.arch + ' · ' + esc(arch.short) + '</span>' +
+      (amount !== null ? '<span class="chip">Ask: $' + amount + 'M</span>' : "") +
+      (owner ? '<span class="chip">Owner: ' + esc(owner.length > 40 ? owner.slice(0, 38) + "…" : owner) + '</span>' : "") +
+      '<span class="chip">' + esc(today) + '</span></div></div></div>' +
+
+      '<div class="decision ' + DEC[d.decision] + '"><div class="lbl">Recommendation</div><div class="val">' + esc(d.decision) + '</div><p>' + esc(d.why) + '</p></div>' +
+
+      '<div class="checks">' + d.checks.map(function (c) {
+        return '<div class="chk"><div class="t">' + esc(c.t) + '</div><div class="s"><span class="dot ' + c.rag + '"></span>' + esc(c.line) + '</div></div>';
+      }).join("") + '</div>' +
+
+      '<div class="cols">' +
+        '<div class="box"><h3>Conditions to attach</h3>' + list(d.ambers, "None", "c") + '</div>' +
+        '<div class="box"><h3>Must fix before funding</h3>' + list(d.reds, "None", "n") + '</div>' +
+      '</div>' +
+
+      '<div class="route"><p><b>Summary:</b> ' + esc(autoSummary) + '</p>' +
+      (ev.payback ? '<p><b>Payback (estimate):</b> ' + esc(ev.payback) + ' Finance to confirm against the baseline and the [24-month] hurdle.</p>' :
+        '<p><b>Payback:</b> Finance to calculate from the year-by-year figures and check against the baseline, the [24-month] hurdle and the downside case.</p>') +
+      '<p><b>Next step:</b> ' + esc(d.next) + '</p>' +
+      (d.route ? '<p><b>Who decides:</b> ' + esc(d.route) + '</p>' : "") + '</div>' +
+
+      '<details><summary>See every answer’s rating</summary><table><tr><th></th><th>Question</th><th>Rating</th></tr>' +
+      ev.rows.map(function (r) { return '<tr><td><span class="dot ' + r.rag + '"></span></td><td>' + esc(r.q.q) + '</td><td>' + esc(r.note) + '</td></tr>'; }).join("") +
+      '</table></details>' +
+      '<div class="foot">' + esc(ev.mode) + '. Values in [ ] are indicative. This is a recommendation to support the Review Forum and Steering Committee, not the decision itself.</div>' +
+      '</div>' +
+      '<div class="nav no-print"><button class="btn" id="edit">← Edit answers</button><div style="display:flex;gap:10px;flex-wrap:wrap">' +
+      '<button class="btn" id="print">Print / save as PDF</button><button class="btn primary" id="restart">Start over</button></div></div>';
+  }
+
+  // =================== Events ===================
+  app.addEventListener("input", function (e) {
+    if (e.target.tagName === "TEXTAREA") { state.answers[e.target.dataset.id] = e.target.value; save(); grow(e.target); }
+  });
+  app.addEventListener("click", function (e) {
+    var t = e.target.closest("button"); if (!t) return;
+    if (t.dataset.arch) { if (state.arch !== t.dataset.arch) { state.arch = t.dataset.arch; save(); } renderStart(); return; }
+    if (t.classList.contains("mic")) { toggleMic(t.dataset.id); return; }
+    if (t.dataset.edit !== undefined) { state.step = +t.dataset.edit; state.screen = "section"; render(); return; }
+    switch (t.id) {
+      case "begin": state.screen = "section"; state.step = 0; render(); break;
+      case "sample": state.answers = JSON.parse(JSON.stringify(SAMPLES[state.arch])); save(); state.screen = "review"; render(); break;
+      case "clear": state.answers = {}; Object.keys(audio).forEach(function (k) { URL.revokeObjectURL(audio[k]); }); audio = {}; save(); renderStart(); break;
+      case "prev": stopAnyVoice(); if (state.screen === "review") { state.screen = "section"; state.step = sections().length - 1; } else if (state.step === 0) state.screen = "start"; else state.step--; render(); break;
+      case "next": stopAnyVoice(); if (state.step === sections().length - 1) state.screen = "review"; else state.step++; render(); break;
+      case "evaluate": evaluate(); break;
+      case "edit": state.screen = "review"; render(); break;
+      case "print": window.print(); break;
+      case "restart": state = { screen: "start", arch: null, step: 0, answers: {} }; audio = {}; result = null; save(); render(); break;
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
