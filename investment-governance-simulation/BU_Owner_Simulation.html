@@ -126,6 +126,9 @@
   .rw .st { font-size: 12.5px; font-weight: 700; }
   .rw .ln { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
   .rw.cur { border-color: var(--accent); background: var(--panel-2); }
+  .rw.next { border-style: dashed; background: transparent; }
+  .rw.next .L { color: var(--faint); }
+  .rw-legend { font-size: 12.5px; color: var(--faint); margin: -2px 0 8px; }
   .checks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .chk { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: rgba(5,9,30,.45); }
   .chk .t { font-size: 13px; color: var(--muted); }
@@ -680,11 +683,13 @@
       { L: "E", nm: "Establish case", st: answered === caseRows.length ? "g" : caseRows.length - answered <= 3 ? "a" : "r", lbl: answered === caseRows.length ? "Done" : "Incomplete",
         ln: answered + " of " + caseRows.length + " answered" + (nFiles ? " · " + nFiles + " file" + (nFiles > 1 ? "s" : "") + " attached" : "") },
       { L: "W", nm: "Weigh value & risks", st: { "d-g": "g", "d-a": "a", "d-r": "r", "d-n": "n" }[DEC[d]], lbl: d, ln: "Three checks → " + d, cur: true },
-      { L: "A", nm: "Assess updates", st: funded ? (risk && risk.rag === "g" ? "g" : "a") : "n", lbl: funded ? (risk && risk.rag === "g" ? "Ready" : "To set up") : "After approval",
-        ln: funded ? "Monthly: Finance reports spend vs plan; BU explains variances. Watch: " + short(A_.r2 || "biggest risk not named", 48) : "Starts once funded" },
-      { L: "R", nm: "Review performance", st: funded ? (plan && plan.rag === "g" ? "g" : "a") : "n", lbl: funded ? (plan && plan.rag === "g" ? "Ready" : "To set up") : "After approval",
-        ln: funded ? ARCH.checkpoints + (A_.p4a ? ". Unlocks: " + short(A_.p4a, 48) : "") : "Starts once funded" },
-      { L: "D", nm: "Document outcomes", st: "g", lbl: "Done", ln: funded ? "This summary is the first record. Quarterly note to the Steering Committee." : "This summary records the decision." }
+      // A, R and D happen after approval, so they show what comes next, not a status
+      { L: "A", nm: "Assess updates", next: true, st: "n", lbl: funded ? "Next · monthly" : "Not started",
+        ln: funded ? "Finance reports spend vs plan; BU explains variances; S&O reviews. Watch: " + (risk && risk.rag === "g" ? short(A_.r2, 48) : "biggest risk, to be named") : "Only if funded" },
+      { L: "R", nm: "Review performance", next: true, st: "n", lbl: funded ? "Next · each checkpoint" : "Not started",
+        ln: funded ? ARCH.checkpoints + ". " + (plan && plan.rag === "g" ? "Each releases the next instalment" : "Milestones still to be dated") : "Only if funded" },
+      { L: "D", nm: "Document outcomes", next: true, st: "n", lbl: funded ? "Next · quarterly" : "Not started",
+        ln: funded ? "S&O reports findings and decisions to the Steering Committee: continue, scale, pause or stop" : "Only if funded" }
     ];
     return { decision: d, why: why, next: next, route: route, checks: checks, reward: reward, reds: reds, ambers: ambers, funded: funded };
   }
@@ -738,8 +743,9 @@
       '</div>' +
 
       '<div class="sect-h">The REWARD view</div>' +
+      '<div class="rw-legend">R, E and W happen now, before money goes out. A, R and D are the next steps once it is funded.</div>' +
       '<div class="reward">' + d.reward.map(function (x) {
-        return '<div class="rw' + (x.cur ? " cur" : "") + '"><div class="L">' + x.L + '</div><div class="nm">' + esc(x.nm) + '</div><div class="st"><span class="dot ' + x.st + '"></span>' + esc(x.lbl) + '</div><div class="ln">' + esc(x.ln) + '</div></div>';
+        return '<div class="rw' + (x.cur ? " cur" : "") + (x.next ? " next" : "") + '"><div class="L">' + x.L + '</div><div class="nm">' + esc(x.nm) + '</div><div class="st"><span class="dot ' + x.st + '"></span>' + esc(x.lbl) + '</div><div class="ln">' + esc(x.ln) + '</div></div>';
       }).join("") + '</div>' +
 
       '<div class="route"><p><b>Summary:</b> ' + esc(autoSummary) + '</p>' +
