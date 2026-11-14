@@ -488,11 +488,12 @@
 
   // =================== State ===================
   var KEY = "igsim.v2";
-  var state = { screen: "start", arch: null, step: 0, answers: {} };
+  var ACTIVE_ARCHES = ["02"]; // archetype 03 is defined below but hidden for now
+  var state = { screen: "start", arch: "02", step: 0, answers: {} };
   var audio = {};     // question id -> object URL (this session only)
   var files = {};     // section id -> [{name, size, type, url, file}] (this session only)
   var result = null;
-  try { var saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved && saved.answers) { state.arch = saved.arch; state.answers = saved.answers; } } catch (e) {}
+  try { var saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved && saved.answers && ACTIVE_ARCHES.indexOf(saved.arch) > -1) { state.arch = saved.arch; state.answers = saved.answers; } } catch (e) {}
   function save() { try { localStorage.setItem(KEY, JSON.stringify({ arch: state.arch, answers: state.answers })); } catch (e) {} }
 
   function sections() { return state.arch ? [ASK, BASE, REAL].concat(ARCH[state.arch].sections, [RET]) : []; }
@@ -632,9 +633,9 @@
       '<div class="eyebrow">You are the BU owner</div>' +
       '<h1>Ask for an investment</h1>' +
       '<p class="lead">Answer short questions, one section at a time. Type, or tap the microphone and speak. You can attach files such as your business case.</p>' +
-      '<h2 style="margin-top:22px">What does most of the money buy?</h2>' +
-      '<div class="types">' +
-      ["02", "03"].map(function (k) {
+      '<h2 style="margin-top:22px">' + (ACTIVE_ARCHES.length > 1 ? "What does most of the money buy?" : "The investment type") + '</h2>' +
+      '<div class="types"' + (ACTIVE_ARCHES.length > 1 ? "" : ' style="grid-template-columns:1fr"') + '>' +
+      ACTIVE_ARCHES.map(function (k) {
         return '<button class="type' + (state.arch === k ? " sel" : "") + '" data-arch="' + k + '"><div class="n">' + k + '</div><b>' + ARCH[k].name + '</b><span>' + ARCH[k].blurb + '</span><br><span><b style="display:inline;font-size:14px">Proof:</b> ' + ARCH[k].proof + '</span></button>';
       }).join("") +
       '</div>' +
@@ -915,7 +916,7 @@
       case "evaluate": evaluate(); break;
       case "edit": state.screen = "review"; render(); break;
       case "print": window.print(); break;
-      case "restart": state = { screen: "start", arch: null, step: 0, answers: {} }; audio = {}; files = {}; result = null; save(); render(); break;
+      case "restart": state = { screen: "start", arch: ACTIVE_ARCHES[0], step: 0, answers: {} }; audio = {}; files = {}; result = null; save(); render(); break;
     }
   });
 
