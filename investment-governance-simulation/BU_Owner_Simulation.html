@@ -19,6 +19,7 @@
     --g: #3ddc97;
     --a: #ffb547;
     --r: #ff6b7a;
+    --n: #6f7bab;
     --radius: 16px;
   }
   * { box-sizing: border-box; }
@@ -29,7 +30,7 @@
     background-color: var(--bg);
     font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; font-size: 16px; line-height: 1.5;
   }
-  .wrap { max-width: 860px; margin: 0 auto; padding: 0 20px 48px; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px 48px; }
   header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 0; }
   .brand b { font-size: 18px; } .brand span { color: var(--muted); margin-left: 8px; }
   .chip { font-size: 13px; color: var(--muted); border: 1px solid var(--line-2); border-radius: 999px; padding: 4px 12px; white-space: nowrap; }
@@ -37,6 +38,7 @@
   .progress i { display: block; height: 100%; background: var(--accent); transition: width .3s; }
   .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px 28px; }
   .eyebrow { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .7px; }
+  .eyebrow b { color: #9fb0ff; }
   h1 { font-size: 30px; line-height: 1.2; margin: 6px 0 8px; letter-spacing: -.5px; }
   h2 { font-size: 19px; margin: 0 0 10px; }
   .lead { color: #cfd6ff; margin: 0 0 6px; }
@@ -46,6 +48,8 @@
   .btn:hover:not(:disabled) { background: var(--panel-2); }
   .btn:disabled { opacity: .4; cursor: not-allowed; }
   .btn.primary { background: var(--accent); border-color: var(--accent); font-weight: 600; }
+  .btn.small { padding: 7px 14px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; }
+  .btn.small svg { width: 16px; height: 16px; }
   .btn.link { border: 0; background: none; padding: 4px 0; color: #9fb0ff; text-decoration: underline; }
   .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; gap: 12px; }
 
@@ -77,9 +81,23 @@
   .mic.on { background: var(--r); border-color: var(--r); animation: pulse 1.2s infinite; }
   @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,107,122,.55); } 50% { box-shadow: 0 0 0 8px rgba(255,107,122,0); } }
   @media (prefers-reduced-motion: reduce) { .mic.on { animation: none; } }
-  .live { font-size: 13px; color: var(--muted); margin-top: 6px; min-height: 0; }
+  .live { font-size: 13px; color: var(--muted); margin-top: 6px; }
   .live:empty { display: none; }
   audio { display: block; margin-top: 8px; height: 34px; max-width: 100%; }
+
+  /* Attachments */
+  .attach { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 4px; }
+  .attach .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .attach small { color: var(--faint); }
+  .files { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .files:empty { display: none; }
+  .file { display: inline-flex; align-items: center; gap: 8px; background: rgba(5,9,30,.6); border: 1px solid var(--line-2); border-radius: 10px; padding: 6px 8px 6px 10px; font-size: 14px; max-width: 100%; }
+  .file img { width: 34px; height: 34px; object-fit: cover; border-radius: 6px; }
+  .file a { color: var(--text); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 260px; }
+  .file a:hover { text-decoration: underline; }
+  .file small { color: var(--faint); }
+  .file .x { border: 0; background: none; color: var(--muted); font-size: 18px; line-height: 1; padding: 0 4px; }
+  .file .x:hover { color: var(--r); }
 
   /* Review */
   .rsec { margin-top: 22px; }
@@ -92,7 +110,6 @@
   .notice { margin-top: 16px; padding: 12px 14px; border-radius: 10px; background: rgba(255,181,71,.10); border: 1px solid rgba(255,181,71,.45); font-size: 14px; }
 
   /* Evaluation one-pager */
-  .ev-top { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
   .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
   .decision { margin: 18px 0 14px; border-radius: 14px; padding: 18px 20px; border: 1px solid; }
   .decision .lbl { font-size: 13px; text-transform: uppercase; letter-spacing: .7px; opacity: .85; }
@@ -102,16 +119,24 @@
   .d-a { border-color: var(--a); background: rgba(255,181,71,.10); } .d-a .val { color: var(--a); }
   .d-r { border-color: var(--r); background: rgba(255,107,122,.10); } .d-r .val { color: var(--r); }
   .d-n { border-color: var(--line-2); background: rgba(255,255,255,.04); } .d-n .val { color: var(--muted); }
+  .sect-h { font-size: 13px; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); margin: 18px 0 8px; }
+  .reward { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .rw { border: 1px solid var(--line); border-radius: 12px; padding: 10px 11px; background: rgba(5,9,30,.45); }
+  .rw .L { font-size: 22px; font-weight: 800; color: #8a9cff; line-height: 1; }
+  .rw .nm { font-size: 12.5px; font-weight: 600; margin: 4px 0 6px; }
+  .rw .st { font-size: 12.5px; font-weight: 700; }
+  .rw .ln { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .rw.cur { border-color: var(--accent); background: var(--panel-2); }
   .checks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .chk { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: rgba(5,9,30,.45); }
   .chk .t { font-size: 13px; color: var(--muted); }
   .chk .s { font-weight: 700; margin-top: 2px; }
   .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: 0; }
-  .dot.g { background: var(--g); } .dot.a { background: var(--a); } .dot.r { background: var(--r); }
+  .dot.g { background: var(--g); } .dot.a { background: var(--a); } .dot.r { background: var(--r); } .dot.n { background: var(--n); }
   .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
   .box { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: rgba(5,9,30,.35); }
   .box h3 { margin: 0 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
-  .box ol, .box ul { margin: 0; padding-left: 20px; } .box li { margin: 5px 0; font-size: 14.5px; }
+  .box ol { margin: 0; padding-left: 20px; } .box li { margin: 5px 0; font-size: 14.5px; }
   .box .none { color: var(--faint); font-size: 14px; }
   .route { margin-top: 14px; font-size: 14.5px; }
   .route b { color: #cfd6ff; }
@@ -123,22 +148,27 @@
   .foot { margin-top: 14px; font-size: 12.5px; color: var(--faint); }
   .loading { text-align: center; padding: 40px 0; color: var(--muted); }
 
+  @media (max-width: 760px) {
+    .reward { grid-template-columns: repeat(3, 1fr); }
+  }
   @media (max-width: 680px) {
     .types, .checks, .cols { grid-template-columns: 1fr; }
+    .reward { grid-template-columns: repeat(2, 1fr); }
     .card { padding: 20px 18px; }
     h1 { font-size: 24px; }
     .chip.hide-sm { display: none; }
+    .file a { max-width: 170px; }
   }
   @media print {
-    body { background: #fff; color: #111; font-size: 12px; }
+    body { background: #fff; color: #111; font-size: 11.5px; }
     header, .progress, .no-print, details { display: none !important; }
     .wrap { max-width: none; padding: 0; }
     .card { background: #fff; border: 0; padding: 0; }
-    .lead, .muted, .route b, .chk .t, .box h3, .foot, .eyebrow { color: #444; }
+    .lead, .muted, .route b, .chk .t, .box h3, .foot, .eyebrow, .sect-h, .rw .ln { color: #444; }
     .chip { color: #333; border-color: #bbb; }
-    .chk, .box { background: #fff; border-color: #ccc; }
+    .chk, .box, .rw { background: #fff !important; border-color: #ccc !important; }
     .decision { background: #fff !important; }
-    h1 { font-size: 22px; }
+    h1 { font-size: 20px; }
   }
 </style>
 </head>
@@ -159,11 +189,13 @@
 (function () {
   "use strict";
 
-  // =================== Helpers for the guardrail rules ===================
-  var HURDLE_MONTHS = 24;      // [indicative] payback / break-even hurdle
-  var MIN_SIZE_M = 0.1;        // [indicative] governance threshold
-  var WRITTEN_LIMIT_M = 0.5;   // [indicative] written approval limit
+  // =================== Indicative thresholds (shown as [ ] on screen) ===================
+  var HURDLE_MONTHS = 24;      // payback / break-even hurdle
+  var DOWNSIDE_MONTHS = 36;    // downside-case payback limit
+  var MIN_SIZE_M = 0.1;        // governance threshold
+  var WRITTEN_LIMIT_M = 0.5;   // written-approval limit
 
+  // =================== Helpers for the guardrail rules ===================
   function L(s) { return (s || "").toLowerCase(); }
   var WORDNUM = { zero: 0, none: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, twelve: 12 };
   function nums(s) {
@@ -186,22 +218,36 @@
   function words(s) { return (s || "").trim().split(/\s+/).filter(Boolean).length; }
   function has(s, re) { return re.test(L(s)); }
   function G(n) { return ["g", n]; } function A(n) { return ["a", n]; } function R(n) { return ["r", n]; }
+  function short(s, n) { s = (s || "").trim().replace(/\.$/, ""); n = n || 70; return s.length > n ? s.slice(0, n - 1) + "…" : s; }
 
   // =================== Questions ===================
-  // q: question · h: example · g: guardrail (shown to the AI evaluator) · c: condition if amber · r: offline rule
-  var ASK = { id: "ask", title: "The ask", sub: "Tell us what you want to invest in.", qs: [
+  // q: question · h: example answer · g: guardrail (given to the AI evaluator) · c: condition if amber · r: offline rule
+  // tag: where the section sits in REWARD and which check it feeds
+  var ASK = { id: "ask", tag: "<b>E</b> · Establish the case", title: "The ask", sub: "What you want to invest in, and why now.", qs: [
     { id: "a1", q: "What is the investment, in one line?", h: "e.g. An AI tool that checks content claims before MLR review",
       g: "Green: a clear one-line description. Amber: vague.", c: "Restate the investment in one clear line",
       r: function (s) { return words(s) >= 6 ? G("Clear description") : A("Too short to understand"); } },
     { id: "a2", q: "How much are you asking for in total?", h: "e.g. $1.5M over 12 months",
-      g: "Green: a total amount of [$0.1M] or more. Red: below [$0.1M] (normal budget, not governed). Amber: no amount.", c: "State the total amount",
+      g: "Green: a total of [$0.1M] or more. Red: below [$0.1M] (normal budget, not governed). Amber: no amount.", c: "State the total amount",
       r: function (s) { var m = moneyM(s); if (m === null) return A("No amount given"); return m < MIN_SIZE_M ? R("Below [$0.1M]: use the normal budget") : G("$" + m + "M"); } },
-    { id: "a3", q: "Who will use or pay for what this money buys?", h: "e.g. Pharma clients will pay a licence",
-      g: "Green: clients use or pay for it. Amber: our own teams use it (that is archetype 04, not this one).", c: "Confirm clients are the ones who use or pay",
-      r: function (s) { return has(s, /client|customer|pharma|brand|biotech/) ? G("Clients use or pay") : A("Sounds internal: check the archetype"); } }
+    { id: "a3", q: "What happens if we don’t invest?", h: "e.g. Clients move to a vendor, and we keep paying $0.84M a year for manual checks",
+      g: "Green: a concrete consequence (lost clients, revenue or cost). Amber: vague.", c: "State what we lose if we don’t invest",
+      r: function (s) { return words(s) >= 6 ? G("Cost of not investing stated") : A("Vague"); } }
   ]};
 
-  var REAL = { id: "real", title: "Is it a real investment?", sub: "Quick facts about the money.", qs: [
+  var BASE = { id: "base", soft: true, tag: "<b>R</b> · Record baseline", title: "Where are you today?", sub: "The starting point. Every later number is compared with this. Your Finance, HR and CRM data will have it.", qs: [
+    { id: "s1", q: "What does your BU spend on this area today, per year?", h: "e.g. $0.84M a year, or nothing: it’s new",
+      g: "Green: an amount, or clearly nothing because it is new. Amber: not given (S&O will record it).", c: "S&O to record today’s spend from the Finance system",
+      r: function (s) { return nums(s).length || has(s, /nothing|\bnone\b|\bnew\b|zero/) ? G("Spend recorded") : A("S&O to record"); } },
+    { id: "s2", q: "How many people work on it today?", h: "e.g. 14 people, about 24,000 hours a year",
+      g: "Green: a headcount or hours, or none. Amber: not given.", c: "S&O to record headcount from HR and timesheets",
+      r: function (s) { return nums(s).length || has(s, /nothing|\bnone\b|nobody|zero/) ? G("Headcount recorded") : A("S&O to record"); } },
+    { id: "s3", q: "What do clients pay us for it today?", h: "e.g. Included in content fees, or nothing yet",
+      g: "Green: an amount or a clear statement. Amber: not given.", c: "S&O to record current revenue from CRM",
+      r: function (s) { return words(s) >= 2 ? G("Current revenue recorded") : A("S&O to record"); } }
+  ]};
+
+  var REAL = { id: "real", tag: "<b>E</b> · Feeds Check 1: Real investment?", title: "Is it a real investment?", sub: "Quick facts about the money.", qs: [
     { id: "b1", q: "Is any of this amount already in your approved budget for this year?", h: "All, part, or none",
       g: "Green: none (new spend). Amber: part (only the extra is governed). Red: all of it (business as usual).", c: "Govern only the amount above the approved budget",
       r: function (s) {
@@ -214,7 +260,7 @@
       r: function (s) { if (has(s, /\bno\b|\bnot\b/)) return G("Not M&A"); if (has(s, /\byes\b|acqui|buy(ing)? a company/)) return R("M&A is handled separately"); return A("Unclear"); } },
     { id: "b3", q: "In which month does spending start, and in which month does it end?", h: "e.g. January 2027 to December 2027",
       g: "Green: a start and an end. Red: no end (that is a running cost). Amber: only one date.", c: "Confirm the start and end month",
-      r: function (s) { if (has(s, /ongoing|no end|indefinite|open.ended|permanent/)) return R("No end date: a running cost"); var d = dates(s); return d >= 2 ? G("Start and end given") : A("Add an end date"); } },
+      r: function (s) { if (has(s, /ongoing|no end|indefinite|open.ended|permanent/)) return R("No end date: a running cost"); return dates(s) >= 2 ? G("Start and end given") : A("Add an end date"); } },
     { id: "b4", q: "Who is the one person accountable for results?", h: "One name or role",
       g: "Green: one person. Amber: two names. Red: a committee or shared ownership.", c: "Name one accountable owner",
       r: function (s) { if (has(s, /committee|jointly|shared|both/)) return R("No single owner"); if (has(s, /\band\b|\//)) return A("More than one name"); return G("One owner"); } },
@@ -228,7 +274,7 @@
         if (n >= 5) return G(n + " of 6 cost types listed");
         if (n >= 3) return A("Missing: " + miss.join(", "));
         return R("Most cost types missing"); } },
-    { id: "b6", q: "After the investment period, what will it cost each year to keep it running, and which budget pays?", h: "e.g. $0.27M a year, paid from BU A's operating budget",
+    { id: "b6", q: "After the investment period, what will it cost each year to keep it running, and which budget pays?", h: "e.g. $0.27M a year, paid from BU A’s operating budget",
       g: "Green: an amount and who pays, or clearly self-funding from client work. Amber: amount without payer. Red: unknown.", c: "Agree which budget carries the running cost",
       r: function (s) {
         if (has(s, /don.t know|unknown|tbd|not sure/)) return R("Running cost unknown");
@@ -238,11 +284,17 @@
         return A("No running cost given"); } }
   ]};
 
+  function splitRule(s) {
+    if (has(s, /\b(all|upfront|up front|one go|single|lump)\b/)) return A("One lump sum");
+    return nums(s).length >= 2 && words(s) >= 8 ? G("Instalments tied to results") : A("Instalments not clear");
+  }
+
   var ARCH = {
     "02": {
       name: "Client product, platform & reusable IP", short: "Client product & IP",
       blurb: "Building, licensing or buying a product, platform or IP that clients will use or pay for.",
-      proof: "Clients willing to pay", first: "the prototype",
+      proof: "Clients willing to pay", first: "the first instalment (prototype)",
+      checkpoints: "Prototype by month [3] · paid pilots by month [6–9] · scale by month [12]",
       sections: [
         { id: "p1", title: "Is the client problem real?", sub: "Who outside Indegene has this problem?", qs: [
           { id: "p1a", q: "How many clients outside Indegene have told you they have this problem? Name them.", h: "e.g. Three: Client X, Client Y, Client Z",
@@ -252,33 +304,27 @@
             g: "Green: signed agreement. Amber: letter of intent or MoU. Red: verbal only or none.", c: "Sign a design-partner agreement before the next instalment",
             r: function (s) { if (has(s, /letter of intent|\bloi\b|\bmou\b/)) return A("Letter of intent only"); if (has(s, /not signed|unsigned/)) return A("Not yet signed"); if (has(s, /signed|contract/)) return G("Signed agreement"); if (has(s, /verbal|none|\bno\b/)) return R("Verbal only"); return A("Unclear"); } },
           { id: "p1c", q: "Who at the client owns the budget for this?", h: "A job title",
-            g: "Green: a named role. Red: unknown.", c: "Identify the budget owner",
+            g: "Green: a named role. Red: unknown.", c: "",
             r: function (s) { if (has(s, /unknown|not sure|don.t know|tbd/)) return R("Budget owner unknown"); return words(s) >= 2 ? G("Budget owner named") : A("Unclear"); } },
           { id: "p1d", q: "What do they spend on this problem today?", h: "e.g. About $1M a year",
             g: "Green: an amount. Amber: unknown.", c: "Confirm what clients spend today",
             r: function (s) { return nums(s).length ? G("Spend given") : A("Spend unknown"); } }
         ]},
         { id: "p2", title: "What can be reused?", sub: "How much already exists.", qs: [
-          { id: "p2a", q: "Which existing Indegene asset does this build on?", h: "e.g. Content SuperApp core, or none",
-            g: "Green: names an existing asset. Amber: none.", c: "Show which existing asset it builds on",
-            r: function (s) { return has(s, /\bnone\b|nothing|from scratch/) ? A("Built from scratch") : G("Builds on existing asset"); } },
+          { id: "p2a", q: "Which existing Indegene asset does this build on, and how many use cases already run on it?", h: "e.g. Content SuperApp core, 2 use cases live. Or: none",
+            g: "Green: names an asset already running at least one use case. Amber: none, or not yet proven.", c: "Prove the core in one use case before scaling",
+            r: function (s) { if (has(s, /\bnone\b|nothing|from scratch/) || maxNum(s) === 0) return A("Core not proven yet"); return G("Builds on a running asset"); } },
           { id: "p2b", q: "Roughly what share of the build already exists?", h: "e.g. 60%",
             g: "Green: 30% or more. Amber: under 30% or unknown.", c: "Show the reusable share of the build",
             r: function (s) { var p = pcts(s); if (!p.length) return A("No % given"); return p[0] >= 30 ? G(p[0] + "% exists") : A("Only " + p[0] + "% exists"); } },
-          { id: "p2c", q: "How many use cases or clients does that core already run?", h: "A number",
-            g: "Green: 1 or more. Amber: none.", c: "Prove the core in one use case before scaling",
-            r: function (s) { var n = maxNum(s); if (n === null || n === 0 || has(s, /\bnone\b/)) return A("Core not proven yet"); return G(n + " running"); } },
           { id: "p2d", q: "How much custom work will each new client need?", h: "As a % of the build",
             g: "Green: [20%] or less. Amber: over [20%]. Red: over 40%.", c: "Cap custom work per client at [20%], shown in the prototype",
             r: function (s) { var p = pcts(s); if (!p.length) return A("No % given"); var v = p[0]; return v > 40 ? R(v + "%: every client is a rebuild") : v > 20 ? A(v + "%, above [20%]") : G(v + "%"); } }
         ]},
         { id: "p3", title: "Build, partner or buy?", sub: "Why build it ourselves?", qs: [
-          { id: "p3a", q: "Did you price at least one partner or vendor option?", h: "Yes or no",
-            g: "Green: yes. Amber: no.", c: "Price one partner or vendor option side by side",
-            r: function (s) { if (has(s, /\bno\b|\bnot\b/)) return A("No alternative priced"); return has(s, /yes|priced|compared/) ? G("Alternative priced") : A("Unclear"); } },
-          { id: "p3b", q: "For each option: what does it cost, and how many months to the first paying client?", h: "e.g. Build $1.5M, 8 months. Vendor $0.4M a year, 4 months",
-            g: "Green: cost and time for at least two options. Amber: incomplete.", c: "Add cost and time to first client for each option",
-            r: function (s) { return nums(s).length >= 2 ? G("Options compared") : A("Comparison incomplete"); } },
+          { id: "p3a", q: "What would the best partner or vendor option cost, and how soon would it reach the first paying client?", h: "e.g. Vendor licence $0.4M a year, first client in 4 months. Or: not priced",
+            g: "Green: an alternative priced with cost and time. Amber: not priced.", c: "Price one partner or vendor option side by side",
+            r: function (s) { if (has(s, /not priced|didn.t|did not|\bnone\b|^no\b/)) return A("No alternative priced"); return nums(s).length ? G("Alternative priced") : A("No cost or time given"); } },
           { id: "p3c", q: "If we build, do we own the code, the data rights and the IP?", h: "Yes or no for each",
             g: "Green: yes to all. Amber: any no or partial.", c: "Secure code, data and IP rights",
             r: function (s) { if (has(s, /\bno\b|\bnot\b|partly|partial/)) return A("Not full ownership"); return has(s, /yes|own/) ? G("We own it") : A("Unclear"); } },
@@ -286,7 +332,7 @@
             g: "Green: a specific reason. Red: blank or generic.", c: "",
             r: function (s) { return words(s) >= 6 ? G("Clear difference") : R("No clear difference"); } }
         ]},
-        { id: "p4", title: "Is the plan realistic?", sub: "Dates, team and full cost.", qs: [
+        { id: "p4", title: "Is the plan realistic?", sub: "Dates, team, and how the money is released.", qs: [
           { id: "p4a", q: "What are the dates for the prototype, the first paid pilot and scale?", h: "e.g. March, August, December 2027",
             g: "Green: three dates. Amber: one or two. Red: none.", c: "Fix dates for prototype, paid pilot and scale",
             r: function (s) { var d = dates(s); return d >= 3 ? G("Milestones dated") : d >= 1 ? A("Some dates missing") : R("No dates"); } },
@@ -295,7 +341,10 @@
             r: function (s) { if (has(s, /partly|partial|some|to be hired|hire|recruit/)) return A("Team not fully in place"); return has(s, /in place|existing|already|yes/) ? G("Team in place") : A("Unclear"); } },
           { id: "p4c", q: "Does the plan include a security review and approval to use client data?", h: "Yes or no",
             g: "Green: yes, both. Red: no.", c: "",
-            r: function (s) { if (has(s, /\bno\b|\bnot\b/)) return R("Security or data approval missing"); return has(s, /yes|included|in the plan/) ? G("Included") : A("Unclear"); } }
+            r: function (s) { if (has(s, /\bno\b|\bnot\b/)) return R("Security or data approval missing"); return has(s, /yes|included|in the plan/) ? G("Included") : A("Unclear"); } },
+          { id: "p4d", q: "How would you split the money into 2–3 instalments, and what result unlocks each?", h: "e.g. $0.4M for the prototype; $0.6M once a design partner signs; $0.5M once 3 clients pay",
+            g: "Green: 2–3 instalments, each unlocked by a measurable result. Amber: one lump sum or results unclear.", c: "Agree instalments, each unlocked by a measurable result",
+            r: splitRule }
         ]},
         { id: "p5", title: "Will clients pay?", sub: "Price, pilots and margin.", qs: [
           { id: "p5a", q: "How will clients pay?", h: "Licence, per use, per asset, or not decided",
@@ -307,19 +356,17 @@
           { id: "p5c", q: "What turns a pilot into a paid contract?", h: "The trigger, e.g. a result the client must see",
             g: "Green: a clear trigger. Amber: blank or vague.", c: "Define the pilot-to-paid trigger",
             r: function (s) { return words(s) >= 6 ? G("Trigger defined") : A("Trigger vague"); } },
-          { id: "p5d", q: "What does it cost to serve one client for a year?", h: "e.g. $90k",
-            g: "Green: an amount. Amber: unknown.", c: "Confirm cost to serve per client",
-            r: function (s) { return nums(s).length ? G("Cost to serve given") : A("Cost to serve unknown"); } },
-          { id: "p5e", q: "What are revenue and margin with [3] clients?", h: "e.g. $0.9M a year, 70% margin",
-            g: "Green: revenue and margin. Amber: one of them missing.", c: "Model revenue and margin at [3] clients",
-            r: function (s) { return nums(s).length && has(s, /%|margin/) ? G("Revenue and margin given") : A("Margin missing"); } }
+          { id: "p5e", q: "With [3] clients, what are the revenue, the cost to serve and the margin?", h: "e.g. $0.9M revenue a year, $90k per client to serve, 70% margin",
+            g: "Green: revenue, cost to serve and margin. Amber: some missing.", c: "Model revenue, cost to serve and margin at [3] clients",
+            r: function (s) { return nums(s).length >= 2 && has(s, /%|margin/) ? G("Revenue and margin given") : A("Margin or cost to serve missing"); } }
         ]}
       ]
     },
     "03": {
       name: "New delivery capability & capacity", short: "New delivery capability",
       blurb: "Setting up the people, skills and methods to deliver a service we don’t offer today.",
-      proof: "Named work to keep them busy", first: "the first named project’s team",
+      proof: "Named work to keep them busy", first: "the first instalment (first project’s team)",
+      checkpoints: "Team in place · first billable work · billable share [50%]+ · break-even on track",
       sections: [
         { id: "d1", title: "Which new offering does it enable?", sub: "The service and the work waiting for it.", qs: [
           { id: "d1a", q: "Do we sell this service today?", h: "Yes or no",
@@ -338,7 +385,7 @@
         ]},
         { id: "d2", title: "Who can we move, and who covers?", sub: "Use our own people first.", qs: [
           { id: "d2a", q: "How many of the roles can be filled by people already at Indegene?", h: "A number",
-            g: "Green: a number (even zero, if explained). Amber: not checked.", c: "Check who can move internally before hiring",
+            g: "Green: a number (even zero, if checked). Amber: not checked.", c: "Check who can move internally before hiring",
             r: function (s) { return nums(s).length ? G("Internal moves checked") : A("Not checked"); } },
           { id: "d2b", q: "Who covers their current work, and at what cost?", h: "e.g. 2 contractors at $8k a month",
             g: "Green: a cover plan with cost. Amber: no plan.", c: "Agree who covers the moved people’s work",
@@ -348,34 +395,28 @@
             r: function (s) { if (has(s, /not yet|\bno\b|pending|progress|discuss/)) return A("Managers not agreed yet"); return has(s, /yes|agreed/) ? G("Managers agreed") : A("Unclear"); } }
         ]},
         { id: "d3", title: "What do we hire or buy in?", sub: "New people and outside help.", qs: [
-          { id: "d3a", q: "How many external hires, and what does each cost per year?", h: "e.g. 8 hires at about $55k each",
-            g: "Green: number and cost. Amber: missing.", c: "Confirm number of hires and cost",
+          { id: "d3a", q: "How many external hires, and what else do you buy in (contractors, tools, certification)? With cost.", h: "e.g. 8 hires at $55k a year each; certification $20k",
+            g: "Green: numbers with cost. Amber: missing.", c: "Confirm hires and outside costs",
             r: function (s) { return nums(s).length ? G("Hires and cost given") : A("Not given"); } },
-          { id: "d3b", q: "Any contractors, partners, tools or certifications to buy?", h: "List them with cost, or say none",
-            g: "Green: listed or none. Amber: blank.", c: "List outside costs",
-            r: function (s) { return words(s) >= 1 ? G("Outside costs stated") : A("Not stated"); } },
           { id: "d3c", q: "How many weeks will hiring take?", h: "A number of weeks",
-            g: "Green: given and before the first deal starts. Red: hiring ends after the first deal starts.", c: "Align hiring time with the first deal’s start",
+            g: "Green: given, and done before the first deal starts. Red: hiring ends after the first deal starts.", c: "Align hiring time with the first deal’s start",
             r: function (s) { return nums(s).length ? G("Hiring time given") : A("Not given"); } }
         ]},
-        { id: "d4", title: "When can it deliver?", sub: "From set-up to billable work.", qs: [
-          { id: "d4a", q: "When does the first billable work start?", h: "A month",
-            g: "Green: a date. Amber: unknown.", c: "Fix the first billable date",
-            r: function (s) { return dates(s) || nums(s).length ? G("Date given") : A("No date"); } },
-          { id: "d4b", q: "What has to be in place before then?", h: "e.g. Training, certification, tools, client access",
-            g: "Green: listed. Amber: blank.", c: "List what must be ready before delivery",
-            r: function (s) { return words(s) >= 3 ? G("Prerequisites listed") : A("Not listed"); } },
+        { id: "d4", title: "When can it deliver?", sub: "From set-up to billable work, and how the money is released.", qs: [
+          { id: "d4a", q: "When does the first billable work start, and what must be ready before then?", h: "e.g. March 2027, after training and certification",
+            g: "Green: a date and the prerequisites. Amber: one of them missing.", c: "Fix the first billable date and what must be ready",
+            r: function (s) { var d = dates(s) || nums(s).length; if (d && words(s) >= 5) return G("Date and prerequisites given"); return d ? A("Prerequisites not listed") : A("No date"); } },
           { id: "d4c", q: "What share of the team’s time will be billable in months 1–3, and in months 4–6?", h: "e.g. 40%, then 75%",
-            g: "Green: 50% or more by months 4–6. Amber: below 50%.", c: "Reach [50%]+ billable by months 4–6, or phase the hiring",
-            r: function (s) { var p = pcts(s); if (!p.length) return A("Not given"); var v = p[p.length - 1]; return v >= 50 ? G(v + "% billable by months 4–6") : A("Only " + v + "% billable"); } }
+            g: "Green: [50%] or more by months 4–6. Amber: below.", c: "Reach [50%]+ billable by months 4–6, or phase the hiring",
+            r: function (s) { var p = pcts(s); if (!p.length) return A("Not given"); var v = p[p.length - 1]; return v >= 50 ? G(v + "% billable by months 4–6") : A("Only " + v + "% billable"); } },
+          { id: "d4d", q: "How would you split the money into 2–3 instalments, and what result unlocks each?", h: "e.g. $0.4M for the first 6 people once Client X starts; $0.5M once Client Y signs",
+            g: "Green: 2–3 instalments, each unlocked by a measurable result. Amber: one lump sum or results unclear.", c: "Agree instalments, each unlocked by a measurable result",
+            r: splitRule }
         ]},
         { id: "d5", title: "When does it break even?", sub: "Cost against named revenue.", qs: [
-          { id: "d5a", q: "What does the full team cost per month?", h: "e.g. $95k a month",
-            g: "Green: an amount. Amber: unknown.", c: "Confirm monthly team cost",
-            r: function (s) { return nums(s).length ? G("Monthly cost given") : A("Not given"); } },
-          { id: "d5b", q: "What revenue does the named work bring in each month?", h: "e.g. $70k a month from March",
-            g: "Green: an amount by month. Amber: unknown.", c: "Confirm monthly revenue from named work",
-            r: function (s) { return nums(s).length ? G("Monthly revenue given") : A("Not given"); } },
+          { id: "d5a", q: "What does the full team cost per month, and what revenue does the named work bring per month?", h: "e.g. $95k a month cost; $70k a month revenue from March",
+            g: "Green: both monthly figures. Amber: one missing.", c: "Confirm monthly cost and revenue",
+            r: function (s) { var n = nums(s).length; return n >= 2 ? G("Cost and revenue given") : n ? A("One figure missing") : A("Not given"); } },
           { id: "d5c", q: "In which month does total revenue catch up with total cost?", h: "e.g. Month 14",
             g: "Green: within [24 months]. Red: later.", c: "Show the break-even month",
             r: function (s) { var n = maxNum(s); if (n === null) return A("Not given"); return n > HURDLE_MONTHS ? R("Month " + n + ": beyond [24]") : G("Month " + n); } },
@@ -387,47 +428,47 @@
     }
   };
 
-  var RET = { id: "ret", title: "Is the return worth it?", sub: "Finance will check these numbers against the baseline.", qs: [
-    { id: "r1", q: "What revenue or savings do you expect in years 1, 2 and 3?", h: "e.g. Year 1: $0.15M, Year 2: $1.2M, Year 3: $2.1M",
-      g: "Green: figures for each year. Amber: incomplete.", c: "Add year-by-year revenue",
-      r: function (s) { return nums(s).length >= 2 ? G("Year-by-year given") : A("Incomplete"); } },
-    { id: "r2", q: "What is the total cost in years 1, 2 and 3, including running cost?", h: "e.g. Year 1: $1.5M, Year 2: $0.4M, Year 3: $0.5M",
-      g: "Green: figures for each year. Amber: incomplete.", c: "Add year-by-year cost",
-      r: function (s) { return nums(s).length >= 2 ? G("Year-by-year given") : A("Incomplete"); } },
-    { id: "r3", q: "Which single assumption, if wrong, hurts the return most?", h: "e.g. That pilots convert to paid licences",
+  var RET = { id: "ret", tag: "<b>E</b> · Feeds Check 3: Return worth it?", title: "Is the return worth it?", sub: "Finance checks these against the baseline, the [24-month] payback hurdle and a downside case. Attach your business case if you have one.", qs: [
+    { id: "r1", q: "What revenue (or savings) and what total cost do you expect in years 1, 2 and 3?", h: "e.g. Revenue $0.15M, $1.2M, $2.1M. Cost $1.5M, $0.4M, $0.5M. Or attach the business case below",
+      g: "Green: revenue and cost for each year. Amber: incomplete.", c: "Add year-by-year revenue and cost",
+      r: function (s) { var n = nums(s).length; return n >= 4 ? G("Year-by-year given") : n ? A("Incomplete") : A("No figures"); } },
+    { id: "r2", q: "Which single assumption, if wrong, hurts the return most?", h: "e.g. That pilots convert to paid licences",
       g: "Green: one named assumption. Amber: blank.", c: "Track the key assumption at each checkpoint",
       r: function (s) { return words(s) >= 4 ? G("Key assumption named") : A("Not named"); } },
-    { id: "r4", q: "If only half the clients or deals come, what happens to payback?", h: "e.g. Payback moves from 20 to 34 months",
-      g: "Green: a downside within [36 months]. Amber: vague. Red: never pays back.", c: "Add a downside case",
-      r: function (s) { if (has(s, /never|no payback|loss/)) return R("Downside never pays back"); var n = maxNum(s); if (n !== null && n > 36 && has(s, /month/)) return R("Downside beyond [36 months]"); return words(s) >= 5 ? G("Downside stated") : A("Downside vague"); } }
+    { id: "r3", q: "If only half the clients or deals come, what happens to payback?", h: "e.g. Payback moves from 20 to 34 months",
+      g: "Green: a downside within [36 months]. Amber: vague. Red: never pays back, or beyond [36 months].", c: "Add a downside case",
+      r: function (s) { if (has(s, /never|no payback|loss/)) return R("Downside never pays back"); var n = maxNum(s); if (n !== null && n > DOWNSIDE_MONTHS && has(s, /month/)) return R("Downside beyond [36 months]"); return words(s) >= 5 ? G("Downside stated") : A("Downside vague"); } }
   ]};
 
   // Sample answers to rehearse the demo
   var SAMPLES = {
     "02": {
       a1: "ClaimCheck: an AI tool that checks every claim in promotional content against approved references before it goes to the client's MLR review.",
-      a2: "$1.5M over 12 months", a3: "Pharma clients will pay an annual licence to use it.",
+      a2: "$1.5M over 12 months", a3: "Clients move to a vendor tool, and we keep spending $0.84M a year on manual claims checks.",
+      s1: "$0.84M a year on manual claims checks.", s2: "14 reviewers, about 24,000 hours a year.", s3: "Included in content fees; not billed separately.",
       b1: "None of it. This is new spend, not in this year's budget.", b2: "No.", b3: "Starts January 2027, ends December 2027.", b4: "BU A product lead.",
       b5: "People (6 engineers), tools and licences, AI model usage and cloud hosting, security and privacy review, client onboarding and support. Contingency included.",
       b6: "About $0.27M a year (support, hosting, model usage), paid from BU A's operating budget and covered by licence revenue.",
       p1a: "Three: two large pharma clients and one mid-size biotech described it in their quarterly reviews.",
       p1b: "One has signed a letter of intent; the agreement is with their legal team.",
       p1c: "Head of MLR operations at each client.", p1d: "About $1.1M a year each on extra MLR review cycles.",
-      p2a: "Content SuperApp core.", p2b: "About 60% of the build already exists.", p2c: "Two use cases already run on it.",
+      p2a: "Content SuperApp core; two use cases already run on it.", p2b: "About 60% of the build already exists.",
       p2d: "About 25% custom work per client in the first year.",
-      p3a: "Yes, we priced one vendor licence.", p3b: "Build: $1.5M once, first client in 8 months. Vendor: $0.4M every year, first client in 4 months.",
+      p3a: "A vendor licence would cost $0.4M every year and reach the first client in 4 months.",
       p3c: "Yes, we own the code, data rights and IP if we build.", p3d: "It uses our own MLR reference library, which no vendor has.",
       p4a: "Prototype March 2027, first paid pilot August 2027, scale December 2027.",
       p4b: "Partly: 4 of 6 engineers are in place, 2 to be hired.", p4c: "Yes, both are in the plan and the budget.",
+      p4d: "$0.4M for the prototype; $0.6M once a design partner signs; $0.5M once 3 clients pay.",
       p5a: "Annual licence per client.", p5b: "Yes, paid pilots at $60k for 3 months, credited to the licence.",
       p5c: "If the pilot cuts MLR review cycles by 20% or more, the client converts to the annual licence.",
-      p5d: "About $90k per client per year.", p5e: "$0.9M revenue a year at 3 clients, about 70% margin.",
-      r1: "Year 1: $0.15M, Year 2: $1.2M, Year 3: $2.1M.", r2: "Year 1: $1.5M, Year 2: $0.4M, Year 3: $0.5M.",
-      r3: "That pilots convert to paid licences.", r4: "With half the clients, payback moves from about 20 months to about 34 months."
+      p5e: "$0.9M revenue a year at 3 clients, $90k per client to serve, about 70% margin.",
+      r1: "Revenue: $0.15M, $1.2M, $2.1M. Cost: $1.5M, $0.4M, $0.5M.",
+      r2: "That pilots convert to paid licences.", r3: "With half the clients, payback moves from about 20 months to about 34 months."
     },
     "03": {
       a1: "Set up a team to run patient-support program operations for pharma clients, a service we don't offer today.",
-      a2: "$0.9M over 9 months", a3: "Pharma clients will buy the new service; the new team delivers it.",
+      a2: "$0.9M over 9 months", a3: "Two client deals go to a competitor, and we can't offer patient-support services at all.",
+      s1: "Nothing: it's a new service.", s2: "None today; 4 people in operations have related skills.", s3: "Nothing yet.",
       b1: "None. Not in this year's budget.", b2: "No.", b3: "From February 2027 to October 2027.", b4: "BU A delivery head.",
       b5: "People (hires and moved staff), tools and licences, a vendor for call-centre tooling, compliance review and certification, onboarding and training.",
       b6: "Nothing extra after 9 months: the team is then paid by client projects.",
@@ -435,27 +476,35 @@
       d1c: "12 people: 1 lead, 2 clinicians, 9 coordinators, starting February to April 2027.", d1d: "About 9 months of named work.",
       d2a: "4 of the 12 can move from our existing operations team.", d2b: "Their current work will be covered by 2 contractors at $8k a month.",
       d2c: "Not yet; discussions are in progress.",
-      d3a: "8 external hires at about $55k a year each.", d3b: "Certification in patient-safety reporting, about $20k.", d3c: "6 to 8 weeks.",
-      d4a: "March 2027.", d4b: "Training, safety-reporting certification and access to the client's systems.", d4c: "40% in months 1 to 3, 75% in months 4 to 6.",
-      d5a: "About $95k a month at full size.", d5b: "$70k a month from March, $140k a month from June if Client Y signs.", d5c: "Month 14.",
+      d3a: "8 external hires at about $55k a year each; safety-reporting certification about $20k.", d3c: "6 to 8 weeks.",
+      d4a: "March 2027, after training, certification and access to the client's systems.", d4c: "40% in months 1 to 3, 75% in months 4 to 6.",
+      d4d: "$0.4M for the first 6 people once Client X starts; $0.5M for the rest once Client Y signs.",
+      d5a: "About $95k a month cost; $70k a month revenue from March, $140k from June if Client Y signs.", d5c: "Month 14.",
       d5d: "About 6 months on Client X alone.",
-      r1: "Year 1: $1.1M, Year 2: $1.7M, Year 3: $1.8M.", r2: "Year 1: $1.0M, Year 2: $1.2M, Year 3: $1.25M.",
-      r3: "That Client Y signs by June.", r4: "Without Client Y, break-even moves from month 14 to about month 22."
+      r1: "Revenue: $1.1M, $1.7M, $1.8M. Cost: $1.0M, $1.2M, $1.25M.",
+      r2: "That Client Y signs by June.", r3: "Without Client Y, break-even moves from month 14 to about month 22."
     }
   };
 
   // =================== State ===================
-  var KEY = "igsim.v1";
+  var KEY = "igsim.v2";
   var state = { screen: "start", arch: null, step: 0, answers: {} };
-  var audio = {};     // id -> object URL (kept for this session only)
-  var result = null;  // last evaluation
+  var audio = {};     // question id -> object URL (this session only)
+  var files = {};     // section id -> [{name, size, type, url, file}] (this session only)
+  var result = null;
   try { var saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved && saved.answers) { state.arch = saved.arch; state.answers = saved.answers; } } catch (e) {}
   function save() { try { localStorage.setItem(KEY, JSON.stringify({ arch: state.arch, answers: state.answers })); } catch (e) {} }
 
-  function sections() { return state.arch ? [ASK, REAL].concat(ARCH[state.arch].sections, [RET]) : []; }
+  function sections() { return state.arch ? [ASK, BASE, REAL].concat(ARCH[state.arch].sections, [RET]) : []; }
   function allQs() { var out = []; sections().forEach(function (s) { s.qs.forEach(function (q) { out.push({ sec: s, q: q }); }); }); return out; }
+  function allFiles() { var out = []; sections().forEach(function (s) { (files[s.id] || []).forEach(function (f) { out.push({ sec: s, f: f }); }); }); return out; }
+  function tagFor(s) {
+    if (s.tag) return s.tag;
+    var k = ARCH[state.arch].sections.indexOf(s);
+    return "<b>E</b> · Feeds Check 2: Proof good enough? · question " + (k + 1) + " of 5";
+  }
 
-  // =================== Claude runtime (only when published as an Artifact) ===================
+  // =================== Claude runtime (only when published on claude.ai) ===================
   var dictation = null, sampler = null;
   if (window.claude && typeof window.claude.use === "function") {
     window.claude.use("dictation").then(function (d) { if (d) { dictation = d; wireDictation(); } }).catch(function () {});
@@ -465,7 +514,8 @@
   // =================== Voice ===================
   var MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
   var STOP = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/></svg>';
-  var active = null; // { id, rec, sr, stream }
+  var CLIP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5l-8.6 8.6a5 5 0 0 1-7.1-7.1l8.6-8.6a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l7.9-7.9"/></svg>';
+  var active = null;
 
   function appendText(id, text) {
     var ta = document.getElementById("ta-" + id); if (!ta || !text) return;
@@ -478,17 +528,12 @@
     b.classList.toggle("on", on); b.innerHTML = on ? STOP : MIC;
     b.setAttribute("aria-label", on ? "Stop recording" : "Record answer");
   }
-
   function wireDictation() {
     dictation.onPartial(function (e) { if (active) setLive(active.id, "Hearing: " + e.text); });
     dictation.onFinal(function (e) { if (active) { appendText(active.id, e.text); setLive(active.id, ""); } });
-    dictation.onState(function (e) {
-      if (e.state === "idle" && active) { setMicBtn(active.id, false); setLive(active.id, ""); active = null; }
-    });
+    dictation.onState(function (e) { if (e.state === "idle" && active) { setMicBtn(active.id, false); setLive(active.id, ""); active = null; } });
   }
-
   function toggleMic(id) {
-    // Published on claude.ai: speech goes straight to text
     if (dictation) {
       if (active) { var was = active.id; dictation.stop().catch(function () {}); if (was === id) return; }
       active = { id: id }; setMicBtn(id, true); setLive(id, "Listening…");
@@ -498,7 +543,6 @@
       });
       return;
     }
-    // Opened as a file: record audio, and transcribe where the browser can
     if (active) { var prev = active.id; stopRecording(); if (prev === id) return; }
     if (!navigator.mediaDevices || !window.MediaRecorder) { setLive(id, "Recording isn’t available in this browser. Please type."); return; }
     navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
@@ -541,6 +585,22 @@
   }
   function stopAnyVoice() { if (dictation && active) { dictation.stop().catch(function () {}); } else stopRecording(); }
 
+  // =================== Attachments ===================
+  function kb(n) { return n < 1024 * 1024 ? Math.max(1, Math.round(n / 1024)) + " KB" : (n / 1048576).toFixed(1) + " MB"; }
+  function isImg(f) { return /^image\//.test(f.type); }
+  function fileChips(secId, removable) {
+    return (files[secId] || []).map(function (f, i) {
+      return '<span class="file">' + (isImg(f) ? '<img src="' + f.url + '" alt="">' : "") +
+        '<a href="' + f.url + '" download="' + esc(f.name) + '" target="_blank" rel="noopener" title="' + esc(f.name) + '">' + esc(f.name) + '</a><small>' + kb(f.size) + '</small>' +
+        (removable ? '<button class="x" data-rm="' + secId + ':' + i + '" aria-label="Remove ' + esc(f.name) + '">×</button>' : "") + '</span>';
+    }).join("");
+  }
+  function addFiles(secId, list) {
+    files[secId] = files[secId] || [];
+    Array.prototype.forEach.call(list, function (f) { files[secId].push({ name: f.name, size: f.size, type: f.type, url: URL.createObjectURL(f), file: f }); });
+    var el = document.getElementById("files-" + secId); if (el) el.innerHTML = fileChips(secId, true);
+  }
+
   // =================== Rendering ===================
   var app = document.getElementById("app");
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -556,7 +616,6 @@
     else if (state.screen === "eval") { cs.textContent = "Evaluation"; bar.style.width = "100%"; }
     else bar.style.width = "0";
   }
-
   function render() {
     setHeader();
     if (state.screen === "start") renderStart();
@@ -572,14 +631,14 @@
       '<div class="card">' +
       '<div class="eyebrow">You are the BU owner</div>' +
       '<h1>Ask for an investment</h1>' +
-      '<p class="lead">Answer a few short questions, section by section. Type, or tap the microphone and speak. At the end, review your answers and see how the investment governance process would decide.</p>' +
-      '<h2 style="margin-top:22px">What kind of investment is it?</h2>' +
+      '<p class="lead">Answer short questions, one section at a time. Type, or tap the microphone and speak. You can attach files such as your business case.</p>' +
+      '<h2 style="margin-top:22px">What does most of the money buy?</h2>' +
       '<div class="types">' +
       ["02", "03"].map(function (k) {
         return '<button class="type' + (state.arch === k ? " sel" : "") + '" data-arch="' + k + '"><div class="n">' + k + '</div><b>' + ARCH[k].name + '</b><span>' + ARCH[k].blurb + '</span><br><span><b style="display:inline;font-size:14px">Proof:</b> ' + ARCH[k].proof + '</span></button>';
       }).join("") +
       '</div>' +
-      '<ol class="steps"><li>Answer each section</li><li>Review all your answers on one page</li><li>Evaluate against the guardrails and get a one-page summary</li></ol>' +
+      '<ol class="steps"><li><b>Answer</b> 9 short sections, following REWARD: the ask, your baseline, then the case</li><li><b>Review</b> all your answers on one page</li><li><b>Evaluate</b> against the guardrails and get a one-page summary for the Review Forum and Steering Committee</li></ol>' +
       '<div class="nav"><div>' + (state.arch ? '<button class="btn link" id="sample">Fill with sample answers</button>' : "") +
       (anyAnswers ? ' &nbsp; <button class="btn link" id="clear">Clear answers</button>' : "") + '</div>' +
       '<button class="btn primary" id="begin"' + (state.arch ? "" : " disabled") + '>' + (anyAnswers ? "Continue" : "Start") + ' →</button></div>' +
@@ -590,7 +649,7 @@
     var secs = sections(), s = secs[state.step];
     app.innerHTML =
       '<div class="card">' +
-      '<div class="eyebrow">Section ' + (state.step + 1) + ' of ' + secs.length + '</div>' +
+      '<div class="eyebrow">Section ' + (state.step + 1) + ' of ' + secs.length + ' · ' + tagFor(s) + '</div>' +
       '<h1>' + esc(s.title) + '</h1><p class="lead">' + esc(s.sub) + '</p>' +
       s.qs.map(function (q) {
         return '<div class="q"><label for="ta-' + q.id + '">' + esc(q.q) + '</label><div class="hint">' + esc(q.h) + '</div>' +
@@ -599,11 +658,14 @@
           '<div class="live" id="live-' + q.id + '"></div>' +
           '<div id="au-' + q.id + '">' + (audio[q.id] ? '<audio controls src="' + audio[q.id] + '"></audio>' : "") + '</div></div>';
       }).join("") +
+      '<div class="attach"><div class="row"><button class="btn small" data-attach="' + s.id + '">' + CLIP + ' Attach files</button>' +
+      '<small>' + (s.id === "ret" ? "Business case (Excel), model or deck" : "Excel, PDF, images or documents that support this section") + '</small>' +
+      '<input type="file" multiple hidden id="in-' + s.id + '" data-sec="' + s.id + '" accept=".xlsx,.xls,.csv,.pdf,.doc,.docx,.ppt,.pptx,.txt,image/*"></div>' +
+      '<div class="files" id="files-' + s.id + '">' + fileChips(s.id, true) + '</div></div>' +
       '</div>' +
       '<div class="nav"><button class="btn" id="prev">← Back</button>' +
       '<button class="btn primary" id="next">' + (state.step === secs.length - 1 ? "Review answers →" : "Next →") + '</button></div>';
     app.querySelectorAll("textarea").forEach(grow);
-    var first = app.querySelector("textarea"); if (first && !first.value) first.focus();
   }
 
   function renderReview() {
@@ -615,20 +677,19 @@
           return '<div class="rq"><div class="qq">' + esc(q.q) + '</div>' +
             (a ? '<div class="aa">' + esc(a) + '</div>' : '<div class="aa none">' + (audio[q.id] ? "Audio only, not transcribed" : "Not answered") + '</div>') +
             (audio[q.id] ? '<audio controls src="' + audio[q.id] + '"></audio>' : "") + '</div>';
-        }).join("") + '</div>';
+        }).join("") +
+        ((files[s.id] || []).length ? '<div class="files">' + fileChips(s.id, false) + '</div>' : "") + '</div>';
     }).join("");
     app.innerHTML =
       '<div class="card"><div class="eyebrow">Review</div><h1>Your answers</h1>' +
       '<p class="lead">Check everything once. Use Edit to change a section.</p>' + html +
-      (missing ? '<div class="notice">' + missing + ' question' + (missing > 1 ? "s are" : " is") + ' not answered. Unanswered questions count against the request.</div>' : "") +
+      (missing ? '<div class="notice">' + missing + ' question' + (missing > 1 ? "s are" : " is") + ' not answered. Unanswered questions count against the request, unless a file in that section covers them.</div>' : "") +
       '</div>' +
       '<div class="nav"><button class="btn" id="prev">← Back</button><button class="btn primary" id="evaluate">Evaluate →</button></div>';
   }
 
   // =================== Evaluation ===================
-  var DEC = {
-    "Approve": "d-g", "Approve in parts": "d-a", "Send back": "d-a", "Decline": "d-r", "Not governed here": "d-n"
-  };
+  var DEC = { "Approve": "d-g", "Approve in parts": "d-a", "Send back": "d-a", "Decline": "d-r", "Not governed here": "d-n" };
   var NOT_GOVERNED = {
     a2: "Below [$0.1M]: use the BU’s normal budget process.",
     b1: "Already in the approved budget: this is business as usual.",
@@ -638,30 +699,62 @@
 
   function offlineRatings() {
     return allQs().map(function (x) {
-      var a = (state.answers[x.q.id] || "").trim();
-      var r = a ? x.q.r(a) : (audio[x.q.id] ? A("Audio only, not transcribed") : R("Not answered"));
-      return { id: x.q.id, sec: x.sec, q: x.q, answer: a, rag: r[0], note: r[1], condition: r[0] === "a" ? x.q.c : "" };
+      var a = (state.answers[x.q.id] || "").trim(), secFiles = files[x.sec.id] || [], r;
+      if (a) r = x.q.r(a);
+      else if (secFiles.length) r = A("Not typed: see attached " + secFiles.map(function (f) { return f.name; }).join(", "));
+      else if (audio[x.q.id]) r = A("Audio only, not transcribed");
+      else r = x.sec.soft ? A("Not given: S&O to record") : R("Not answered");
+      var cond = r[0] === "a" ? (!a && secFiles.length ? "S&O and Finance to verify the attached evidence" : x.q.c) : "";
+      return { id: x.q.id, sec: x.sec, q: x.q, answer: a, rag: r[0], note: r[1], condition: cond };
     });
   }
 
-  function aiRatings() {
-    var items = allQs().map(function (x) {
-      return { id: x.q.id, section: x.sec.title, question: x.q.q, guardrail: x.q.g, conditionIfAmber: x.q.c, answer: (state.answers[x.q.id] || "").trim() };
+  // AI evaluation: only when published on claude.ai. Reads CSV/Excel text and images where possible.
+  function loadXLSX() {
+    return new Promise(function (res) {
+      if (window.XLSX) return res(window.XLSX);
+      var s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+      s.onload = function () { res(window.XLSX || null); }; s.onerror = function () { res(null); };
+      document.head.appendChild(s); setTimeout(function () { res(window.XLSX || null); }, 8000);
     });
-    var prompt =
-      "You are the Strategy & Operations investment-governance evaluator. A BU owner has answered questions about an investment request " +
-      "(archetype " + state.arch + ": " + ARCH[state.arch].name + "; proof required: " + ARCH[state.arch].proof + ").\n" +
-      "Grade EACH answer strictly against its guardrail: g = meets it, a = partly meets it and can be fixed with a condition, r = fails, is missing, or is too vague to check. " +
-      "An empty answer is r. Values in [ ] are indicative thresholds; apply them as written. Do not invent facts.\n" +
-      "For each item give a note of at most 12 words quoting the answer's facts, and for every 'a' a condition of at most 14 words (adapt conditionIfAmber to the answer).\n" +
-      "Also give: summary (two plain sentences for the Steering Committee: what is strong, what is the main risk), and paybackEstimate (one short line estimated from the year-by-year revenue and cost answers, or 'Not enough data').\n" +
-      'Return JSON only: {"items":[{"id":"","rag":"g|a|r","note":"","condition":""}],"summary":"","paybackEstimate":""}\n\nItems:\n' +
-      JSON.stringify(items);
-    return sampler.json(prompt, { modelTier: "default" }).then(function (v) {
+  }
+  function fileText(f) {
+    if (/\.(csv|txt)$/i.test(f.name)) return f.file.text().then(function (t) { return t.slice(0, 6000); });
+    if (/\.xlsx?$/i.test(f.name)) return loadXLSX().then(function (X) {
+      if (!X) return null;
+      return f.file.arrayBuffer().then(function (buf) {
+        var wb = X.read(buf, { type: "array" });
+        return wb.SheetNames.map(function (n) { return "Sheet " + n + ":\n" + X.utils.sheet_to_csv(wb.Sheets[n]); }).join("\n").slice(0, 6000);
+      });
+    }).catch(function () { return null; });
+    return Promise.resolve(null);
+  }
+  function aiRatings() {
+    var fl = allFiles();
+    return Promise.all(fl.map(function (x) { return fileText(x.f); })).then(function (texts) {
+      var items = allQs().map(function (x) {
+        return { id: x.q.id, section: x.sec.title, question: x.q.q, guardrail: x.q.g, conditionIfAmber: x.q.c, answer: (state.answers[x.q.id] || "").trim(),
+          optional: !!x.sec.soft };
+      });
+      var att = fl.map(function (x, i) { return { section: x.sec.title, name: x.f.name, content: texts[i] || "(not readable as text)" }; });
+      var images = fl.filter(function (x) { return isImg(x.f); }).slice(0, 4).map(function (x) { return x.f.file; });
+      var prompt =
+        "You are the Strategy & Operations investment-governance evaluator. A BU owner has answered questions about an investment request " +
+        "(archetype " + state.arch + ": " + ARCH[state.arch].name + "; proof required: " + ARCH[state.arch].proof + ").\n" +
+        "Grade EACH answer strictly against its guardrail: g = meets it, a = partly meets it and can be fixed with a condition, r = fails, is missing, or is too vague to check. " +
+        "An empty answer is r, unless an attachment in the same section clearly answers it (then grade from the attachment), or the item is optional (then a). Values in [ ] are indicative thresholds; apply them as written. Do not invent facts.\n" +
+        "For each item give a note of at most 12 words quoting the facts, and for every 'a' a condition of at most 14 words (adapt conditionIfAmber).\n" +
+        "Also give: summary (two plain sentences for the Steering Committee: what is strong, what is the main risk) and paybackEstimate (one short line from the year-by-year figures or an attached business case, or 'Not enough data').\n" +
+        'Return JSON only: {"items":[{"id":"","rag":"g|a|r","note":"","condition":""}],"summary":"","paybackEstimate":""}\n\nItems:\n' + JSON.stringify(items) +
+        (att.length ? "\n\nAttachments:\n" + JSON.stringify(att) : "");
+      var opts = { modelTier: "default" };
+      var lim = sampler.limits ? Promise.resolve().then(function () { return sampler.limits(); }).catch(function () { return null; }) : Promise.resolve(null);
+      return lim.then(function (l) { if (images.length && l && l.images) opts.images = images; return sampler.json(prompt, opts); });
+    }).then(function (v) {
       if (!v || !Array.isArray(v.items)) throw new Error("bad shape");
       var byId = {}; v.items.forEach(function (it) { byId[it.id] = it; });
-      var base = offlineRatings();
-      var rows = base.map(function (b) {
+      var rows = offlineRatings().map(function (b) {
         var it = byId[b.id];
         if (!it || !/^[gar]$/.test(it.rag)) return b;
         return { id: b.id, sec: b.sec, q: b.q, answer: b.answer, rag: it.rag, note: it.note || b.note, condition: it.rag === "a" ? (it.condition || b.q.c) : "" };
@@ -673,52 +766,56 @@
   function worst(list) { return list.some(function (r) { return r.rag === "r"; }) ? "r" : list.some(function (r) { return r.rag === "a"; }) ? "a" : "g"; }
 
   function decide(ev) {
-    var rows = ev.rows;
-    var arch = ARCH[state.arch];
+    var rows = ev.rows, arch = ARCH[state.arch];
     var archIds = arch.sections.map(function (s) { return s.id; });
-    var c1 = rows.filter(function (r) { return r.sec.id === "ask" || r.sec.id === "real"; });
-    var c2 = rows.filter(function (r) { return archIds.indexOf(r.sec.id) > -1; });
+    var inSec = function (ids) { return rows.filter(function (r) { return ids.indexOf(r.sec.id) > -1; }); };
+    var c1 = inSec(["ask", "real"]), c2 = inSec(archIds);
     var c3 = rows.filter(function (r) { return r.sec.id === "ret" || r.id === "p5e" || r.id === "d5c"; });
-    var reds = rows.filter(function (r) { return r.rag === "r"; });
+    var caseRows = rows.filter(function (r) { return r.sec.id !== "base"; });
+    var reds = caseRows.filter(function (r) { return r.rag === "r"; });
     var ambers = rows.filter(function (r) { return r.rag === "a"; });
     var ng = reds.filter(function (r) { return NOT_GOVERNED[r.id]; });
     var proofReds = c2.filter(function (r) { return r.rag === "r"; }).length;
     var amount = moneyM(state.answers.a2);
 
     var d, why, next;
-    if (ng.length) {
-      d = "Not governed here"; why = NOT_GOVERNED[ng[0].id];
-      next = "Route the request to the right process. It does not go to the Review Forum.";
-    } else if (proofReds >= 4) {
-      d = "Decline"; why = "The proof is missing on " + proofReds + " points. The request is not ready to fund.";
-      next = "Review Forum recommends Decline. The Steering Committee confirms.";
-    } else if (reds.length) {
-      d = "Send back"; why = reds.length + " answer" + (reds.length > 1 ? "s fail" : " fails") + " the guardrails. Fix " + (reds.length > 1 ? "them" : "it") + " and resubmit.";
-      next = "Back to the BU owner. Resubmit to the Review Forum once the gaps are fixed.";
-    } else if (ambers.length) {
-      d = "Approve in parts"; why = "The case holds, but " + ambers.length + " point" + (ambers.length > 1 ? "s need" : " needs") + " proof. Release money in instalments, tied to conditions.";
-      next = "Release only " + arch.first + ". Hold the rest until the conditions are met at the checkpoints.";
-    } else {
-      d = "Approve"; why = "Every answer meets the guardrails.";
-      next = "Release the first instalment. Later instalments follow the checkpoints.";
-    }
-    var route = (d === "Not governed here" || d === "Send back") ? "" :
+    if (ng.length) { d = "Not governed here"; why = NOT_GOVERNED[ng[0].id]; next = "Route the request to the right process. It does not go to the Review Forum."; }
+    else if (proofReds >= 4) { d = "Decline"; why = "The proof is missing on " + proofReds + " points. The request is not ready to fund."; next = "Review Forum recommends Decline. The Steering Committee confirms."; }
+    else if (reds.length) { d = "Send back"; why = reds.length + " answer" + (reds.length > 1 ? "s fail" : " fails") + " the guardrails. Fix " + (reds.length > 1 ? "them" : "it") + " and resubmit."; next = "Back to the BU owner. Resubmit to the Review Forum once the gaps are fixed."; }
+    else if (ambers.length) { d = "Approve in parts"; why = "The case holds, but " + ambers.length + " point" + (ambers.length > 1 ? "s need" : " needs") + " proof. Release money in instalments, tied to conditions."; next = "Release only " + arch.first + ". Hold the rest until the conditions are met at the checkpoints."; }
+    else { d = "Approve"; why = "Every answer meets the guardrails."; next = "Release the first instalment. Later instalments follow the checkpoints."; }
+    var funded = d === "Approve" || d === "Approve in parts";
+    var route = !funded && d !== "Decline" ? "" :
       "Review Forum reviews and recommends · Steering Committee decides" +
-      (amount !== null ? (amount <= WRITTEN_LIMIT_M ? " · by written reply within [5] working days (under [$0.5M])" : " · in a meeting (over [$0.5M])") : "") +
+      (amount !== null ? (amount <= WRITTEN_LIMIT_M ? " · by written reply within [5] working days (up to [$0.5M])" : " · in a meeting (over [$0.5M])") : "") +
       " · BU owner presents but does not vote.";
     function line(list) {
       var r = list.filter(function (x) { return x.rag === "r"; }).length, a = list.filter(function (x) { return x.rag === "a"; }).length;
       return r ? r + " gap" + (r > 1 ? "s" : "") + (a ? ", " + a + " to condition" : "") : a ? a + " point" + (a > 1 ? "s" : "") + " to condition" : "Meets the guardrails";
     }
-    return {
-      decision: d, why: why, next: next, route: route,
-      checks: [
-        { t: "Check 1 · Real investment?", rag: worst(c1), line: line(c1) },
-        { t: "Check 2 · Proof good enough?", rag: worst(c2), line: line(c2) },
-        { t: "Check 3 · Return worth it?", rag: worst(c3), line: line(c3) }
-      ],
-      reds: reds, ambers: ambers
-    };
+    var checks = [
+      { t: "Check 1 · Real investment?", rag: worst(c1), line: line(c1) },
+      { t: "Check 2 · Proof good enough?", rag: worst(c2), line: line(c2) },
+      { t: "Check 3 · Return worth it?", rag: worst(c3), line: line(c3) }
+    ];
+
+    // REWARD view
+    var A_ = state.answers, base = inSec(["base"]);
+    var answered = caseRows.filter(function (r) { return r.answer || (files[r.sec.id] || []).length; }).length;
+    var nFiles = allFiles().length;
+    var split = rows.filter(function (r) { return r.id === "p4d" || r.id === "d4d"; })[0];
+    var keyA = rows.filter(function (r) { return r.id === "r2"; })[0];
+    var DS = { g: "Done", a: "Open points", r: "Gaps", n: "After approval" };
+    var reward = [
+      { L: "R", nm: "Record baseline", st: worst(base), ln: worst(base) === "g" ? "Spend: " + short(A_.s1, 40) + " · People: " + short(A_.s2, 40) : "S&O to complete from Finance, HR and CRM" },
+      { L: "E", nm: "Establish case", st: answered === caseRows.length ? "g" : caseRows.length - answered <= 3 ? "a" : "r", ln: answered + " of " + caseRows.length + " answered" + (nFiles ? " · " + nFiles + " file" + (nFiles > 1 ? "s" : "") + " attached" : "") },
+      { L: "W", nm: "Weigh value & risks", st: { "d-g": "g", "d-a": "a", "d-r": "r", "d-n": "n" }[DEC[d]], ln: "Three checks → " + d, cur: true },
+      { L: "A", nm: "Assess updates", st: funded ? (keyA && keyA.rag === "g" ? "g" : "a") : "n", ln: funded ? "Monthly: Finance reports spend vs plan; BU explains variances. Watch: " + short(A_.r2 || "key assumption not named", 50) : "Starts once funded" },
+      { L: "R", nm: "Review performance", st: funded ? (split && split.rag === "g" ? "g" : "a") : "n", ln: funded ? arch.checkpoints + (A_.p4d || A_.d4d ? ". Unlocks: " + short(A_.p4d || A_.d4d, 48) : "") : "Starts once funded" },
+      { L: "D", nm: "Document outcomes", st: "g", ln: funded ? "This summary is the first record. Quarterly note to the Steering Committee." : "This summary records the decision." }
+    ];
+    reward.forEach(function (x) { x.stLabel = x.L === "W" ? d : (funded || x.st !== "n" ? (x.L === "A" || (x.L === "R" && x.nm === "Review performance") ? (x.st === "g" ? "Ready" : "To set up") : DS[x.st]) : DS.n); });
+    return { decision: d, why: why, next: next, route: route, checks: checks, reward: reward, reds: reds, ambers: ambers, funded: funded };
   }
 
   function evaluate() {
@@ -737,46 +834,55 @@
     var ev = result, d = ev.d, arch = ARCH[state.arch];
     var name = (state.answers.a1 || "Investment request").trim();
     var amount = moneyM(state.answers.a2);
-    var owner = (state.answers.b4 || "").trim().replace(/\.$/, "");
+    var owner = short(state.answers.b4, 40);
     var today = new Date().toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+    var retFiles = files.ret || [], fl = allFiles();
     var autoSummary = ev.summary ||
-      ("Strongest areas: " + (sections().filter(function (s) { return ev.rows.filter(function (r) { return r.sec.id === s.id; }).every(function (r) { return r.rag === "g"; }); }).map(function (s) { return s.title.replace(/\?$/, ""); }).join("; ") || "none fully green") + ". " +
+      ("Strongest areas: " + (sections().filter(function (s) { return s.id !== "base" && ev.rows.filter(function (r) { return r.sec.id === s.id; }).every(function (r) { return r.rag === "g"; }); }).map(function (s) { return s.title.replace(/\?$/, ""); }).join("; ") || "none fully green") + ". " +
        (d.reds.length ? "Main gaps: " + d.reds.slice(0, 3).map(function (r) { return r.note.toLowerCase(); }).join("; ") + "." :
         d.ambers.length ? "Main open points: " + d.ambers.slice(0, 3).map(function (r) { return r.note.toLowerCase(); }).join("; ") + "." : "No open points."));
 
-    function list(items, empty, field) {
-      return items.length ? "<ol>" + items.map(function (r) { return "<li>" + esc(field === "c" ? (r.condition || r.q.c) : r.note) + ' <span class="muted">(' + esc(r.sec.title.replace(/\?$/, "")) + ")</span></li>"; }).join("") + "</ol>" : '<div class="none">' + empty + "</div>";
+    function list(items, empty, useCond) {
+      return items.length ? "<ol>" + items.map(function (r) { return "<li>" + esc(useCond ? (r.condition || r.q.c) : r.note) + ' <span class="muted">(' + esc(r.sec.title.replace(/\?$/, "")) + ")</span></li>"; }).join("") + "</ol>" : '<div class="none">' + empty + "</div>";
     }
 
     app.innerHTML =
       '<div class="card">' +
-      '<div class="ev-top"><div><div class="eyebrow">Evaluation summary</div><h1 style="margin-bottom:0">' + esc(name.length > 110 ? name.slice(0, 107) + "…" : name) + '</h1>' +
+      '<div class="eyebrow">Evaluation summary</div><h1 style="margin-bottom:0">' + esc(short(name, 110)) + '</h1>' +
       '<div class="meta"><span class="chip">Archetype ' + state.arch + ' · ' + esc(arch.short) + '</span>' +
       (amount !== null ? '<span class="chip">Ask: $' + amount + 'M</span>' : "") +
-      (owner ? '<span class="chip">Owner: ' + esc(owner.length > 40 ? owner.slice(0, 38) + "…" : owner) + '</span>' : "") +
-      '<span class="chip">' + esc(today) + '</span></div></div></div>' +
+      (owner ? '<span class="chip">Owner: ' + esc(owner) + '</span>' : "") +
+      '<span class="chip">' + esc(today) + '</span></div>' +
 
       '<div class="decision ' + DEC[d.decision] + '"><div class="lbl">Recommendation</div><div class="val">' + esc(d.decision) + '</div><p>' + esc(d.why) + '</p></div>' +
 
+      '<div class="sect-h">The three checks</div>' +
       '<div class="checks">' + d.checks.map(function (c) {
         return '<div class="chk"><div class="t">' + esc(c.t) + '</div><div class="s"><span class="dot ' + c.rag + '"></span>' + esc(c.line) + '</div></div>';
       }).join("") + '</div>' +
 
       '<div class="cols">' +
-        '<div class="box"><h3>Conditions to attach</h3>' + list(d.ambers, "None", "c") + '</div>' +
-        '<div class="box"><h3>Must fix before funding</h3>' + list(d.reds, "None", "n") + '</div>' +
+        '<div class="box"><h3>Conditions to attach</h3>' + list(d.ambers, "None", true) + '</div>' +
+        '<div class="box"><h3>Must fix before funding</h3>' + list(d.reds, "None", false) + '</div>' +
       '</div>' +
+
+      '<div class="sect-h">The REWARD view</div>' +
+      '<div class="reward">' + d.reward.map(function (x) {
+        return '<div class="rw' + (x.cur ? " cur" : "") + '"><div class="L">' + x.L + '</div><div class="nm">' + esc(x.nm) + '</div><div class="st"><span class="dot ' + x.st + '"></span>' + esc(x.stLabel) + '</div><div class="ln">' + esc(x.ln) + '</div></div>';
+      }).join("") + '</div>' +
 
       '<div class="route"><p><b>Summary:</b> ' + esc(autoSummary) + '</p>' +
       (ev.payback ? '<p><b>Payback (estimate):</b> ' + esc(ev.payback) + ' Finance to confirm against the baseline and the [24-month] hurdle.</p>' :
+        retFiles.length ? '<p><b>Payback:</b> Business case attached (' + esc(retFiles.map(function (f) { return f.name; }).join(", ")) + '). Finance to compute payback and check it against the baseline, the [24-month] hurdle and the downside case.</p>' :
         '<p><b>Payback:</b> Finance to calculate from the year-by-year figures and check against the baseline, the [24-month] hurdle and the downside case.</p>') +
       '<p><b>Next step:</b> ' + esc(d.next) + '</p>' +
-      (d.route ? '<p><b>Who decides:</b> ' + esc(d.route) + '</p>' : "") + '</div>' +
+      (d.route ? '<p><b>Who decides:</b> ' + esc(d.route) + '</p>' : "") +
+      (fl.length ? '<p><b>Evidence attached:</b> ' + esc(fl.map(function (x) { return x.f.name; }).join(", ")) + '</p>' : "") + '</div>' +
 
       '<details><summary>See every answer’s rating</summary><table><tr><th></th><th>Question</th><th>Rating</th></tr>' +
       ev.rows.map(function (r) { return '<tr><td><span class="dot ' + r.rag + '"></span></td><td>' + esc(r.q.q) + '</td><td>' + esc(r.note) + '</td></tr>'; }).join("") +
       '</table></details>' +
-      '<div class="foot">' + esc(ev.mode) + '. Values in [ ] are indicative. This is a recommendation to support the Review Forum and Steering Committee, not the decision itself.</div>' +
+      '<div class="foot">' + esc(ev.mode) + '. Values in [ ] are indicative. This recommendation supports the Review Forum and Steering Committee; it is not the decision itself.</div>' +
       '</div>' +
       '<div class="nav no-print"><button class="btn" id="edit">← Edit answers</button><div style="display:flex;gap:10px;flex-wrap:wrap">' +
       '<button class="btn" id="print">Print / save as PDF</button><button class="btn primary" id="restart">Start over</button></div></div>';
@@ -786,21 +892,30 @@
   app.addEventListener("input", function (e) {
     if (e.target.tagName === "TEXTAREA") { state.answers[e.target.dataset.id] = e.target.value; save(); grow(e.target); }
   });
+  app.addEventListener("change", function (e) {
+    if (e.target.type === "file" && e.target.files.length) { addFiles(e.target.dataset.sec, e.target.files); e.target.value = ""; }
+  });
   app.addEventListener("click", function (e) {
     var t = e.target.closest("button"); if (!t) return;
     if (t.dataset.arch) { if (state.arch !== t.dataset.arch) { state.arch = t.dataset.arch; save(); } renderStart(); return; }
     if (t.classList.contains("mic")) { toggleMic(t.dataset.id); return; }
+    if (t.dataset.attach) { document.getElementById("in-" + t.dataset.attach).click(); return; }
+    if (t.dataset.rm) {
+      var p = t.dataset.rm.split(":"), arr = files[p[0]] || [], f = arr[+p[1]];
+      if (f) { URL.revokeObjectURL(f.url); arr.splice(+p[1], 1); }
+      document.getElementById("files-" + p[0]).innerHTML = fileChips(p[0], true); return;
+    }
     if (t.dataset.edit !== undefined) { state.step = +t.dataset.edit; state.screen = "section"; render(); return; }
     switch (t.id) {
       case "begin": state.screen = "section"; state.step = 0; render(); break;
       case "sample": state.answers = JSON.parse(JSON.stringify(SAMPLES[state.arch])); save(); state.screen = "review"; render(); break;
-      case "clear": state.answers = {}; Object.keys(audio).forEach(function (k) { URL.revokeObjectURL(audio[k]); }); audio = {}; save(); renderStart(); break;
+      case "clear": state.answers = {}; Object.keys(audio).forEach(function (k) { URL.revokeObjectURL(audio[k]); }); audio = {}; files = {}; save(); renderStart(); break;
       case "prev": stopAnyVoice(); if (state.screen === "review") { state.screen = "section"; state.step = sections().length - 1; } else if (state.step === 0) state.screen = "start"; else state.step--; render(); break;
       case "next": stopAnyVoice(); if (state.step === sections().length - 1) state.screen = "review"; else state.step++; render(); break;
       case "evaluate": evaluate(); break;
       case "edit": state.screen = "review"; render(); break;
       case "print": window.print(); break;
-      case "restart": state = { screen: "start", arch: null, step: 0, answers: {} }; audio = {}; result = null; save(); render(); break;
+      case "restart": state = { screen: "start", arch: null, step: 0, answers: {} }; audio = {}; files = {}; result = null; save(); render(); break;
     }
   });
 
